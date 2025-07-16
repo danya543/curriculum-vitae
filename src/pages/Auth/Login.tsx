@@ -6,20 +6,42 @@ import {
     InputAdornment,
     TextField,
     Typography,
-} from '@mui/material'
-import { type ChangeEvent, useState } from 'react'
-import { Link } from 'react-router-dom'
+} from '@mui/material';
+import { type ChangeEvent, useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+
+import { useAuth } from '@/hooks/useAuth';
+import { login } from '@/services/authService'
 
 export const Login = () => {
-    const [loginData, setLoginData] = useState({ email: '', password: '' })
+    const { isAuthenticated } = useAuth()
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/')
+        }
+    }, [isAuthenticated, navigate])
+
+    const [form, setForm] = useState({ email: '', password: '' })
     const [showPassword, setShowPassword] = useState(false)
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
-        setLoginData(prev => ({ ...prev, [name]: value }))
+        setForm(prev => ({ ...prev, [name]: value }))
     }
 
     const toggleShowPassword = () => setShowPassword(show => !show)
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        try {
+            await login(form)
+            navigate('/');
+        } catch (err) {
+            console.error(err)
+        }
+    }
 
     return (
         <Box
@@ -36,6 +58,7 @@ export const Login = () => {
                 borderRadius: 2,
                 bgcolor: 'background.paper',
             }}
+            onSubmit={handleSubmit}
             noValidate
             autoComplete="off"
         >
@@ -49,7 +72,7 @@ export const Login = () => {
             <TextField
                 label="Email"
                 name="email"
-                value={loginData.email}
+                value={form.email}
                 onChange={handleChange}
                 variant="outlined"
                 fullWidth
@@ -59,7 +82,7 @@ export const Login = () => {
                 label="Password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
-                value={loginData.password}
+                value={form.password}
                 onChange={handleChange}
                 variant="outlined"
                 fullWidth

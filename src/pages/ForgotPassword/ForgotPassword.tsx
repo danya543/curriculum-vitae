@@ -4,11 +4,31 @@ import {
     TextField,
     Typography,
 } from '@mui/material'
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+
+import { forgotPassword } from '@/api/mutations/forgetPassword'
+import { useAuth } from '@/hooks/useAuth'
 
 export const ForgotPassword = () => {
+    const { isAuthenticated } = useAuth()
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/')
+        }
+    }, [isAuthenticated, navigate])
     const [email, setEmail] = useState('')
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        try {
+            await forgotPassword(email)
+        } catch (err) {
+            console.error(err)
+        }
+    }
 
     return (
         <Box
@@ -25,6 +45,7 @@ export const ForgotPassword = () => {
                 borderRadius: 2,
                 bgcolor: 'background.paper',
             }}
+            onSubmit={handleSubmit}
             noValidate
             autoComplete="off"
         >

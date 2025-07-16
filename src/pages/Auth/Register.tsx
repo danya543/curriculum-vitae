@@ -7,21 +7,43 @@ import {
     TextField,
     Typography
 } from '@mui/material'
-import { type ChangeEvent, useState } from 'react'
+import { type ChangeEvent, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+import { useAuth } from '@/hooks/useAuth'
+import { signup } from '@/services/authService'
 
 export const Register = () => {
-    const [registerData, setRegisterData] = useState({
+    const [form, setForm] = useState({
         email: '',
         password: '',
     })
     const [showPassword, setShowPassword] = useState(false)
+    const { isAuthenticated } = useAuth()
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/')
+        }
+    }, [isAuthenticated, navigate])
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
-        setRegisterData(prev => ({ ...prev, [name]: value }))
+        setForm(prev => ({ ...prev, [name]: value }))
     }
 
     const toggleShowPassword = () => setShowPassword(prev => !prev)
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        try {
+            await signup(form)
+            navigate('/')
+        } catch (err) {
+            console.error(err)
+        }
+    }
 
     return (
         <Box
@@ -38,6 +60,7 @@ export const Register = () => {
                 borderRadius: 2,
                 bgcolor: 'background.paper',
             }}
+            onSubmit={handleSubmit}
             noValidate
             autoComplete="off"
         >
@@ -51,7 +74,7 @@ export const Register = () => {
             <TextField
                 label="Email"
                 name="email"
-                value={registerData.email}
+                value={form.email}
                 onChange={handleChange}
                 variant="outlined"
                 fullWidth
@@ -61,7 +84,7 @@ export const Register = () => {
                 label="Password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
-                value={registerData.password}
+                value={form.password}
                 onChange={handleChange}
                 variant="outlined"
                 fullWidth
