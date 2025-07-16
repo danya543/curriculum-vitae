@@ -1,10 +1,4 @@
-export const getAccessToken = () => localStorage.getItem('access_token')
-export const getRefreshToken = () => localStorage.getItem('refresh_token')
-
-export const setTokens = (access: string, refresh: string) => {
-    localStorage.setItem('access_token', access)
-    localStorage.setItem('refresh_token', refresh)
-}
+import { getRefreshToken, setTokens } from "@/components/constants"
 
 export const refreshToken = async (): Promise<string | null> => {
     const refresh_token = getRefreshToken()
@@ -20,20 +14,22 @@ export const refreshToken = async (): Promise<string | null> => {
             },
             body: JSON.stringify({
                 query: `
-          mutation Refresh {
-            refresh {
-              access_token
-              refresh_token
-            }
-          }
-        `,
+                    mutation UpdateToken {
+                        updateToken {
+                            access_token
+                            refresh_token
+                        }
+                    }
+                `,
             }),
         })
 
         const { data } = await res.json()
-        if (data?.refresh?.access_token) {
-            setTokens(data.refresh.access_token, data.refresh.refresh_token)
-            return data.refresh.access_token
+        const tokens = data?.updateToken
+
+        if (tokens?.access_token && tokens?.refresh_token) {
+            setTokens(tokens.access_token, tokens.refresh_token)
+            return tokens.access_token
         }
 
         return null
