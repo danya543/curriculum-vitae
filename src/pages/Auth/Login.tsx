@@ -1,9 +1,17 @@
 import { Visibility, VisibilityOff } from '@mui/icons-material'
-import { Box, Button, IconButton, InputAdornment, TextField, Typography } from '@mui/material'
+import {
+    Box,
+    Button,
+    IconButton,
+    InputAdornment,
+    TextField,
+    Typography,
+} from '@mui/material'
 import { type ChangeEvent, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 export const Login = () => {
-    const [loginData, setLoginData] = useState({ username: '', password: '' })
+    const [loginData, setLoginData] = useState({ email: '', password: '' })
     const [showPassword, setShowPassword] = useState(false)
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -32,16 +40,16 @@ export const Login = () => {
             autoComplete="off"
         >
             <Typography variant="h5" component="h3" textAlign="center">
-                С возвращением
+                Welcome back
             </Typography>
             <Typography variant="body1" textAlign="center" color="text.secondary" mb={2}>
-                Рады вас видеть! Войдите, чтобы продолжить
+                Hello again! Log in to continue
             </Typography>
 
             <TextField
-                label="Username"
-                name="username"
-                value={loginData.username}
+                label="Email"
+                name="email"
+                value={loginData.email}
                 onChange={handleChange}
                 variant="outlined"
                 fullWidth
@@ -70,15 +78,25 @@ export const Login = () => {
             <Button
                 type="submit"
                 variant="contained"
-                sx={{ backgroundColor: 'rgb(198, 48, 49)', ':hover': { backgroundColor: 'rgb(170, 40, 42)' } }}
+                sx={{
+                    backgroundColor: 'rgb(198, 48, 49)',
+                    ':hover': { backgroundColor: 'rgb(170, 40, 42)' },
+                }}
             >
-                Войти
+                Log in
             </Button>
 
             <Box textAlign="center" mt={1}>
-                <a href="#" style={{ color: 'rgb(118, 118, 118)', textDecoration: 'none', fontWeight: 500 }}>
-                    Забыли пароль?
-                </a>
+                <Link
+                    to="/forgot-password"
+                    style={{
+                        color: 'rgb(118, 118, 118)',
+                        textDecoration: 'none',
+                        fontWeight: 500,
+                    }}
+                >
+                    Forgot password?
+                </Link>
             </Box>
         </Box>
     )

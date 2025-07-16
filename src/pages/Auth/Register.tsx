@@ -11,7 +11,7 @@ import { type ChangeEvent, useState } from 'react'
 
 export const Register = () => {
     const [registerData, setRegisterData] = useState({
-        username: '',
+        email: '',
         password: '',
     })
     const [showPassword, setShowPassword] = useState(false)
@@ -42,16 +42,16 @@ export const Register = () => {
             autoComplete="off"
         >
             <Typography variant="h5" component="h3" textAlign="center">
-                Зарегистрируйтесь
+                Register now
             </Typography>
             <Typography variant="body1" textAlign="center" color="text.secondary" mb={2}>
-                Добро пожаловать! Создайте аккаунт, чтобы продолжить
+                Welcome! Sign up to continue
             </Typography>
 
             <TextField
-                label="Username"
-                name="username"
-                value={registerData.username}
+                label="Email"
+                name="email"
+                value={registerData.email}
                 onChange={handleChange}
                 variant="outlined"
                 fullWidth
@@ -85,12 +85,12 @@ export const Register = () => {
                     ':hover': { backgroundColor: 'rgba(170, 40, 42, 1)' }
                 }}
             >
-                Создать аккаунт
+                Create accout
             </Button>
 
             <Box textAlign="center" mt={1}>
                 <a href="#" style={{ color: 'rgb(118, 118, 118)', textDecoration: 'none', fontWeight: 500 }}>
-                    У меня уже есть аккаунт
+                    I have an account
                 </a>
             </Box>
         </Box>

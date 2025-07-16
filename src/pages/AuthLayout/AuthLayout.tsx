@@ -1,11 +1,11 @@
 import { Outlet } from 'react-router-dom';
 
-import { SignHeader } from '@/components/Header/Sign';
+import { AuthHeader } from '@/components/Header/Auth';
 
-export const SignLayout = () => {
+export const AuthLayout = () => {
     return (
         <section>
-            <SignHeader />
+            <AuthHeader />
             <main>
                 <Outlet />
             </main>

@@ -3,9 +3,10 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import { Login } from '@/pages/Auth/Login';
 import { Register } from '@/pages/Auth/Register';
+import { AuthLayout } from '@/pages/AuthLayout/AuthLayout';
+import { ForgotPassword } from '@/pages/ForgotPassword/ForgotPassword';
 import { MainPage } from '@/pages/Main/Main';
 import { MainLayout } from '@/pages/MainLayout/MainLayout';
-import { SignLayout } from '@/pages/SignLayout/SignLayout';
 
 export const router = createBrowserRouter([
     {
@@ -23,8 +24,8 @@ export const router = createBrowserRouter([
         ],
     },
     {
-        path: '/sign',
-        element: <SignLayout />,
+        path: '/auth',
+        element: <AuthLayout />,
         children: [
             {
                 path: 'login',
@@ -43,5 +44,9 @@ export const router = createBrowserRouter([
                 ),
             },
         ]
-    }
+    },
+    {
+        path: '/forgot-password',
+        element: <ForgotPassword />,
+    },
 ])
