@@ -7,6 +7,7 @@ import { AuthLayout } from '@/pages/AuthLayout/AuthLayout';
 import { ForgotPassword } from '@/pages/ForgotPassword/ForgotPassword';
 import { MainPage } from '@/pages/Main/Main';
 import { MainLayout } from '@/pages/MainLayout/MainLayout';
+import { UserPage } from '@/pages/User/User';
 import { UsersPage } from '@/pages/Users/Users';
 
 export const router = createBrowserRouter([
@@ -27,6 +28,14 @@ export const router = createBrowserRouter([
                 element: (
                     <Suspense fallback={'Loader'}>
                         <UsersPage />
+                    </Suspense>
+                ),
+            },
+            {
+                path: 'users/:id',
+                element: (
+                    <Suspense fallback={'Loader'}>
+                        <UserPage />
                     </Suspense>
                 ),
             },

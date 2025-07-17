@@ -1,14 +1,30 @@
-import { Outlet } from 'react-router-dom';
+import { Box } from '@mui/material'
+import { useState } from 'react'
+import { Outlet } from 'react-router-dom'
 
-import { MainHeader } from '@/components/Header/Main';
+import { MainHeader } from '@/components/Header/Main'
+import { SideMenu } from '@/components/SideMenu/SideMenu'
 
 export const MainLayout = () => {
+    const [open, setOpen] = useState(true)
+    const toggleMenu = () => setOpen(prev => !prev)
+
     return (
-        <section>
+        <Box>
             <MainHeader />
-            <main>
+
+            <SideMenu open={open} toggleMenu={toggleMenu} />
+
+            <Box
+                component="main"
+                sx={{
+                    ml: open ? '240px' : '0px',
+                    transition: 'margin-left 0.3s ease-in-out',
+                    p: 3,
+                }}
+            >
                 <Outlet />
-            </main>
-        </section>
-    );
-};
+            </Box>
+        </Box>
+    )
+}

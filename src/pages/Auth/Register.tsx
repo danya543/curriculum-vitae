@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { useAuth } from '@/hooks/useAuth'
 import { signup } from '@/services/authService'
+import { useAlert } from '@/ui/Alert/useAlert'
 
 export const Register = () => {
     const [form, setForm] = useState({
@@ -24,7 +25,7 @@ export const Register = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate('/')
+            navigate('/users')
         }
     }, [isAuthenticated, navigate])
 
@@ -32,6 +33,7 @@ export const Register = () => {
         const { name, value } = e.target
         setForm(prev => ({ ...prev, [name]: value }))
     }
+    const { showAlert } = useAlert()
 
     const toggleShowPassword = () => setShowPassword(prev => !prev)
 
@@ -39,9 +41,11 @@ export const Register = () => {
         e.preventDefault()
         try {
             await signup(form)
+            showAlert({ type: 'success', message: 'Sign up successfully' })
             navigate('/')
         } catch (err) {
             console.error(err)
+            showAlert({ type: 'error', message: 'Sign up error' })
         }
     }
 
@@ -49,9 +53,7 @@ export const Register = () => {
         <Box
             component="form"
             sx={{
-                maxWidth: 360,
-                mx: 'auto',
-                mt: 8,
+                width: 400,
                 p: 3,
                 display: 'flex',
                 flexDirection: 'column',
