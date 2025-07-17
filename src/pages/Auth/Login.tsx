@@ -12,6 +12,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '@/hooks/useAuth';
 import { login } from '@/services/authService'
+import { useAlert } from '@/ui/Alert/useAlert';
 
 export const Login = () => {
     const { isAuthenticated } = useAuth()
@@ -33,23 +34,26 @@ export const Login = () => {
 
     const toggleShowPassword = () => setShowPassword(show => !show)
 
+    const { showAlert } = useAlert()
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
             await login(form)
+            showAlert({ type: 'success', message: 'Log in successfully' })
             navigate('/');
         } catch (err) {
+            showAlert({ type: 'error', message: 'Login error' })
             console.error(err)
         }
     }
+
 
     return (
         <Box
             component="form"
             sx={{
-                maxWidth: 360,
-                mx: 'auto',
-                mt: 8,
+                width: 400,
                 p: 3,
                 display: 'flex',
                 flexDirection: 'column',
