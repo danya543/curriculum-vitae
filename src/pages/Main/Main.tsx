@@ -1,16 +1,16 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { getId } from "@/components/constants"
+import { useAuth } from "@/hooks/useAuth";
 
 export const MainPage = () => {
     const navigate = useNavigate();
-    const id = getId();
+    const { isAuthenticated } = useAuth();
     useEffect(() => {
-        if (id) {
+        if (!isAuthenticated) {
             navigate('/auth/login')
         }
-    }, [navigate, id])
+    }, [navigate, isAuthenticated])
     return (
         <section>Main</section>
     )
