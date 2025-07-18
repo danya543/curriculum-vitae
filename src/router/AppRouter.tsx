@@ -7,6 +7,7 @@ import { Skills } from '@/components/Skills/Skills';
 import { Login } from '@/pages/Auth/Login';
 import { Register } from '@/pages/Auth/Register';
 import { AuthLayout } from '@/pages/AuthLayout/AuthLayout';
+import { CVPage } from '@/pages/CV/CV';
 import { ForgotPassword } from '@/pages/ForgotPassword/ForgotPassword';
 import { MainPage } from '@/pages/Main/Main';
 import { MainLayout } from '@/pages/MainLayout/MainLayout';
@@ -63,6 +64,14 @@ export const router = createBrowserRouter([
                 element: (
                     <Suspense fallback={'Loader'}>
                         <CVs />
+                    </Suspense>
+                ),
+            },
+            {
+                path: 'cvs/:id',
+                element: (
+                    <Suspense fallback={'Loader'}>
+                        <CVPage />
                     </Suspense>
                 ),
             },

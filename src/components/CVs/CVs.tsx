@@ -2,15 +2,15 @@ import { useQuery } from "@apollo/client";
 import {
     Box,
     CircularProgress,
-    Divider,
-    List,
-    ListItem,
-    ListItemText,
+    TextField,
     Typography,
 } from "@mui/material";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { GET_CVS } from "@/api/queries/getCVs";
 import { getId } from "@/components/constants";
+import { CvCard } from "@/components/CVCard/CVCard";
 
 import { AddCV } from "./AddCV";
 
@@ -53,70 +53,53 @@ interface CvsData {
 
 export const CVs = () => {
     const userId = getId();
+    const navigate = useNavigate();
     const { data, loading, error } = useQuery<CvsData>(GET_CVS, {
         variables: { userId },
     });
 
+    const [search, setSearch] = useState("");
+
     if (loading) return <CircularProgress />;
-    if (error) return <Typography color="error">Error loading CVs</Typography>;
+    if (error)
+        return <Typography color="error">Error loading CVs: {error.message}</Typography>;
+
+    const filteredCvs = data?.cvs.filter((cv) =>
+        cv.name.toLowerCase().includes(search.toLowerCase())
+    );
 
     return (
-        <Box>
-            <Typography variant="h6" gutterBottom>
-                CVs
-            </Typography>
-            <AddCV />
-            {(data && data.cvs.length > 0) ? data?.cvs.map(cv => (
-                <Box key={cv.id} sx={{ mb: 4 }}>
-                    <Typography variant="subtitle1">{cv.name}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Created: {new Date(cv.created_at).toLocaleDateString()}
-                    </Typography>
-                    <Typography sx={{ mt: 1 }}>Description: {cv.description}</Typography>
-                    {cv.education && <Typography>Education: {cv.education}</Typography>}
+        <Box sx={{ p: 3 }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 3,
+                    pt: 1,
+                }}
+            >
+                <Typography variant="h4" component="h1">
+                    CVs
+                </Typography>
+                <AddCV />
+            </Box>
 
-                    <Typography sx={{ mt: 2, fontWeight: "bold" }}>Skills:</Typography>
-                    <List dense>
-                        {cv.skills.map(skill => (
-                            <ListItem key={skill.skill.id}>
-                                <ListItemText
-                                    primary={skill.skill.name}
-                                    secondary={`Level: ${skill.level}`}
-                                />
-                            </ListItem>
-                        ))}
-                    </List>
+            <TextField
+                fullWidth
+                label="Search CV by name"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                sx={{ mb: 3 }}
+            />
 
-                    <Typography sx={{ mt: 2, fontWeight: "bold" }}>Languages:</Typography>
-                    <List dense>
-                        {cv.languages.map(lang => (
-                            <ListItem key={lang.language.id}>
-                                <ListItemText
-                                    primary={lang.language.name}
-                                    secondary={`Level: ${lang.level}`}
-                                />
-                            </ListItem>
-                        ))}
-                    </List>
-
-                    {cv.projects.length > 0 && (
-                        <>
-                            <Typography sx={{ mt: 2, fontWeight: "bold" }}>Projects:</Typography>
-                            <List dense>
-                                {cv.projects.map(project => (
-                                    <ListItem key={project.id}>
-                                        <ListItemText
-                                            primary={project.name}
-                                            secondary={project.description}
-                                        />
-                                    </ListItem>
-                                ))}
-                            </List>
-                        </>
-                    )}
-                    <Divider sx={{ my: 2 }} />
-                </Box>
-            )) : 'No CVs yet'}
+            {filteredCvs && filteredCvs.length > 0 ? (
+                filteredCvs.map((cv) => (
+                    <CvCard key={cv.id} cv={cv} onClick={() => navigate(`/cvs/${cv.id}`)} />
+                ))
+            ) : (
+                <Typography>No CVs found</Typography>
+            )}
         </Box>
     );
 };
