@@ -20,7 +20,7 @@ export const Login = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate('/users')
+            setTimeout(() => navigate('/users'), 3500)
         }
     }, [isAuthenticated, navigate])
 
@@ -39,9 +39,8 @@ export const Login = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            await login(form)
+            await login(form);
             showAlert({ type: 'success', message: 'Log in successfully' })
-            navigate('/');
         } catch (err) {
             showAlert({ type: 'error', message: 'Login error' })
             console.error(err)

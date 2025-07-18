@@ -1,28 +1,37 @@
-// Profile.tsx
 import {
     Avatar,
     Box,
     Button,
-    FormControl,
     Grid,
-    InputLabel,
-    MenuItem,
-    Select,
     TextField,
     Typography,
 } from "@mui/material";
+import { useState } from "react";
+
+import { useUpdateProfile } from "@/api/mutations/updProfile";
+import { getId } from "@/components/constants";
+import { Departments } from "@/components/Departments/Departments";
+import { Positions } from "@/components/Positions/Positions";
+
+type CVProps = {
+    created_at: string;
+    id: string;
+}
 
 type UserType = {
+    id: string;
+    cvs: CVProps[]
     profile: {
         first_name: string;
         last_name: string;
-        email?: string; // если email есть в profile, иначе user.email из API
-        avatar_url?: string; // пример, если есть
+        email?: string;
+        avatar_url?: string;
     };
     email?: string;
     created_at?: string;
     department_name?: string;
     position_name?: string;
+    is_verified: boolean;
 };
 
 type ProfileProps = {
@@ -30,61 +39,97 @@ type ProfileProps = {
 };
 
 export const Profile = ({ user }: ProfileProps) => {
-    const firstName = user.profile.first_name;
-    const lastName = user.profile.last_name;
+    const initialState = {
+        firstName: user.profile.first_name,
+        lastName: user.profile.last_name,
+        department: user.department_name || "",
+        position: user.position_name || "",
+    };
+    const id = getId();
+
+    const [form, setForm] = useState(initialState);
+
+    const handleChange = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        setForm(prev => ({ ...prev, [field]: e.target.value }));
+    };
+
+    const { updateProfile } = useUpdateProfile();
+
+    const handleSave = async () => {
+        try {
+            await updateProfile({
+                userId: +user.id,
+                first_name: form.firstName,
+                last_name: form.lastName,
+            });
+        } catch (err) {
+            console.error(err)
+        }
+    };
+
+    const handleDepartmentChange = (value: string) => {
+        setForm(prev => ({ ...prev, department: value }));
+    };
+
+    const handlePositionChange = (value: string) => {
+        setForm(prev => ({ ...prev, position: value }));
+    };
+
+    const isChanged = JSON.stringify(form) !== JSON.stringify(initialState);
+
     const email = user.email || user.profile.email || "";
     const joinedAt = user.created_at ? user.created_at.split("T")[0] : "";
-    const department = user.department_name || "";
-    const position = user.position_name || "";
     const avatarUrl = user.profile.avatar_url || "/avatar.png";
 
     return (
         <Box sx={{ mt: 2 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
                 <Avatar src={avatarUrl} sx={{ width: 80, height: 80 }} />
-                <Button variant="outlined" component="label">
+                {user.id === id && <Button variant="outlined" component="label">
                     Upload Avatar
                     <input type="file" hidden accept="image/*" />
-                </Button>
+                </Button>}
             </Box>
 
-            <Typography variant="subtitle1">Name: {firstName} {lastName}</Typography>
+            <Typography variant="subtitle1">Name: {initialState.firstName} {initialState.lastName}</Typography>
             <Typography variant="subtitle1">Email: {email}</Typography>
             <Typography variant="subtitle1">Joined: {joinedAt}</Typography>
 
-            <Box component="form" sx={{ mt: 4 }} noValidate autoComplete="off">
+            {id === user.id && <Box component="form" sx={{ mt: 4 }} noValidate autoComplete="off" onSubmit={e => { e.preventDefault(); handleSave(); }}>
                 <Grid container spacing={2}>
                     <Grid size={6}>
-                        <TextField fullWidth label="First Name" defaultValue={firstName} />
+                        <TextField
+                            fullWidth
+                            label="First Name"
+                            value={form.firstName}
+                            onChange={handleChange("firstName")}
+                        />
                     </Grid>
                     <Grid size={6}>
-                        <TextField fullWidth label="Last Name" defaultValue={lastName} />
+                        <TextField
+                            fullWidth
+                            label="Last Name"
+                            value={form.lastName}
+                            onChange={handleChange("lastName")}
+                        />
                     </Grid>
                     <Grid size={6}>
-                        <FormControl fullWidth>
-                            <InputLabel>Department</InputLabel>
-                            <Select defaultValue={department} label="Department">
-                                <MenuItem value="IT">IT</MenuItem>
-                                <MenuItem value="HR">HR</MenuItem>
-                                <MenuItem value="Sales">Sales</MenuItem>
-                            </Select>
-                        </FormControl>
+                        <Departments department={form.department} onChange={handleDepartmentChange} />
                     </Grid>
                     <Grid size={6}>
-                        <FormControl fullWidth>
-                            <InputLabel>Position</InputLabel>
-                            <Select defaultValue={position} label="Position">
-                                <MenuItem value="Frontend Developer">Frontend Developer</MenuItem>
-                                <MenuItem value="Backend Developer">Backend Developer</MenuItem>
-                                <MenuItem value="Manager">Manager</MenuItem>
-                            </Select>
-                        </FormControl>
+                        <Positions position={form.position} onChange={handlePositionChange} />
                     </Grid>
-                    <Grid size={6}>
-                        <Button variant="contained">Save Changes</Button>
-                    </Grid>
+                    {id === user.id && <Grid size={6}>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            disabled={!isChanged}
+                        >
+                            Save Changes
+                        </Button>
+                    </Grid>}
                 </Grid>
-            </Box>
+            </Box>}
         </Box>
     );
 };

@@ -15,7 +15,7 @@ export const AlertPortal = ({ alert }: AlertPortalProps) => {
     useEffect(() => {
         const interval = setInterval(() => {
             setProgress((prev) => (prev > 0 ? prev - 2.5 : 0))
-        }, 100)
+        }, 70)
 
         return () => clearInterval(interval)
     }, [])

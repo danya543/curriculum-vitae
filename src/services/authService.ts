@@ -1,5 +1,6 @@
 import { client } from '@/api/client';
 import { LOGIN, SIGNUP } from '@/api/mutations/auth';
+import { setId, setTokens } from '@/components/constants';
 
 export const login = async (auth: { email: string; password: string }) => {
     const { data } = await client.mutate({
@@ -8,8 +9,8 @@ export const login = async (auth: { email: string; password: string }) => {
     })
 
     if (data?.login) {
-        localStorage.setItem('access_token', data.login.access_token)
-        localStorage.setItem('refresh_token', data.login.refresh_token)
+        setTokens(data.login.access_token, data.login.refresh_token)
+        setId(data.login.user.id)
         return data.login.user
     }
 

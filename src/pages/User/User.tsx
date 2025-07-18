@@ -1,4 +1,4 @@
-import { useQuery } from "@apollo/client"
+import { useQuery } from "@apollo/client";
 import {
     Box,
     Breadcrumbs,
@@ -6,16 +6,15 @@ import {
     Tab,
     Tabs,
     Typography,
-} from "@mui/material"
-import { useState } from "react"
-import { useParams } from "react-router-dom"
+} from "@mui/material";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 
-import { GET_USER } from "@/api/queries/getUser"
-import { Languages } from "@/components/Languages/Languages"
-import { Profile } from "@/components/Profile/Profile"
-import { Skills } from "@/components/Skills/Skills"
+import { GET_USER } from "@/api/queries/getUser";
+import { Languages } from "@/components/Languages/Languages";
+import { Profile } from "@/components/Profile/Profile";
+import { Skills } from "@/components/Skills/Skills";
 
-// UserPage.tsx
 export const UserPage = () => {
     const { id } = useParams();
     const [tab, setTab] = useState(0);
@@ -35,7 +34,7 @@ export const UserPage = () => {
     if (!user) return <div>User not found</div>;
 
     return (
-        <Container sx={{ mt: 2 }}>
+        <Container sx={{ mt: 2, height: '90vh', display: 'flex', flexDirection: 'column' }}>
             <Breadcrumbs>
                 <Typography color="text.secondary">Employees</Typography>
                 <Typography color="text.primary">
@@ -43,18 +42,18 @@ export const UserPage = () => {
                 </Typography>
             </Breadcrumbs>
 
-            <Box sx={{ mt: 3 }}>
+            <Box sx={{ mt: 3, flexShrink: 0 }}>
                 <Tabs value={tab} onChange={handleTabChange}>
                     <Tab label="Profile" />
                     <Tab label="Skills" />
                     <Tab label="Languages" />
                 </Tabs>
+            </Box>
 
-                <Box sx={{ mt: 2 }}>
-                    {tab === 0 && <Profile user={user} />}
-                    {tab === 1 && <Skills />}
-                    {tab === 2 && <Languages />}
-                </Box>
+            <Box sx={{ mt: 2, flexGrow: 1, overflowY: 'auto' }}>
+                {tab === 0 && <Profile user={user} />}
+                {tab === 1 && <Skills />}
+                {tab === 2 && <Languages />}
             </Box>
         </Container>
     );

@@ -1,10 +1,13 @@
-// SideMenu.tsx
+import { useQuery } from "@apollo/client"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import { Box, IconButton, Typography } from "@mui/material"
-import { Link, useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 
+import { GET_USER } from "@/api/queries/getUser"
 import { ICONS } from "@/ui/constants"
+
+import { getId } from "../constants"
 
 interface SideMenuProps {
     open: boolean
@@ -12,13 +15,18 @@ interface SideMenuProps {
 }
 
 export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
-    const location = useLocation()
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const { data, loading } = useQuery(GET_USER, {
+        variables: { userId: getId() }
+    });
 
     const menuItems = [
         { label: 'Employees', Icon: ICONS.Employees, link: '/users', active: location.pathname.includes('/users') },
-        { label: 'Skills', Icon: ICONS.Skills, link: '', active: location.pathname.includes('/skills') },
-        { label: 'Languages', Icon: ICONS.Language, link: '', active: location.pathname.includes('/langs') },
-        { label: 'CVs', Icon: ICONS.CVs, link: '', active: location.pathname.includes('/cvs') },
+        { label: 'Skills', Icon: ICONS.Skills, link: '/skills', active: location.pathname.includes('/skills') },
+        { label: 'Languages', Icon: ICONS.Language, link: '/languages', active: location.pathname.includes('/langs') },
+        { label: 'CVs', Icon: ICONS.CVs, link: '/cvs', active: location.pathname.includes('/cvs') },
     ]
 
     return (
@@ -43,6 +51,7 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                 <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
                     {menuItems.map(({ label, Icon, link, active }) => (
                         <Box
+                            onClick={() => navigate(link)}
                             key={label}
                             component="li"
                             sx={{
@@ -55,17 +64,15 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                                 transition: 'background 0.2s',
                                 '&:hover': { bgcolor: 'action.hover' },
                             }}
-                        ><Link to={link}>
-
-                                <Icon style={{ width: 24, height: 24, opacity: active ? 1 : 0.6 }} />
-                                <Typography>{label}</Typography>
-                            </Link>
+                        >
+                            <Icon style={{ width: 24, height: 24, opacity: active ? 1 : 0.6 }} />
+                            <Typography>{label}</Typography>
                         </Box>
                     ))}
                 </Box>
 
                 <Box sx={{ textAlign: 'center' }}>
-                    <Typography variant="body2" mb={1}>username</Typography>
+                    {!loading ? <Typography variant="body2" mb={1}>{data.user.profile.first_name} {data.user.profile.last_name}</Typography> : 'loading...'}
                     <IconButton size="small" onClick={toggleMenu}>
                         <ChevronLeftIcon />
                     </IconButton>

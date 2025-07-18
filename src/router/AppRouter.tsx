@@ -1,6 +1,9 @@
 import { Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 
+import { CVs } from '@/components/CVs/CVs';
+import { Languages } from '@/components/Languages/Languages';
+import { Skills } from '@/components/Skills/Skills';
 import { Login } from '@/pages/Auth/Login';
 import { Register } from '@/pages/Auth/Register';
 import { AuthLayout } from '@/pages/AuthLayout/AuthLayout';
@@ -36,6 +39,30 @@ export const router = createBrowserRouter([
                 element: (
                     <Suspense fallback={'Loader'}>
                         <UserPage />
+                    </Suspense>
+                ),
+            },
+            {
+                path: 'languages',
+                element: (
+                    <Suspense fallback={'Loader'}>
+                        <Languages />
+                    </Suspense>
+                ),
+            },
+            {
+                path: 'skills',
+                element: (
+                    <Suspense fallback={'Loader'}>
+                        <Skills />
+                    </Suspense>
+                ),
+            },
+            {
+                path: 'cvs',
+                element: (
+                    <Suspense fallback={'Loader'}>
+                        <CVs />
                     </Suspense>
                 ),
             },

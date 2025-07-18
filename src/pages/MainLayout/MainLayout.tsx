@@ -2,7 +2,6 @@ import { Box } from '@mui/material'
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 
-import { MainHeader } from '@/components/Header/Main'
 import { SideMenu } from '@/components/SideMenu/SideMenu'
 
 export const MainLayout = () => {
@@ -11,10 +10,7 @@ export const MainLayout = () => {
 
     return (
         <Box>
-            <MainHeader />
-
             <SideMenu open={open} toggleMenu={toggleMenu} />
-
             <Box
                 component="main"
                 sx={{
