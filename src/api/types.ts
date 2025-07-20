@@ -30,3 +30,45 @@ export interface User {
 export interface GetUsersData {
     users: User[]
 }
+
+export interface Language {
+    id: string;
+    created_at: string;
+    iso2: string;
+    name: string;
+    native_name: string;
+}
+
+export interface LanguagesData {
+    languages: Language[];
+}
+
+
+interface Position {
+    id: string;
+    name: string;
+    created_at: string;
+}
+
+export interface PositionsData {
+    positions: Position[];
+}
+
+
+interface Category {
+    id: string;
+    name: string;
+}
+
+export interface Skill {
+    id: string;
+    created_at: string;
+    name: string;
+    category: Category | null;
+    category_name: string | null;
+    category_parent_name: string | null;
+}
+
+export interface SkillsData {
+    skills: Skill[];
+}

@@ -2,15 +2,7 @@ import { Avatar, Box, Paper, Typography } from '@mui/material'
 import type { FC } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-interface UserCardProps {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    departmentName?: string
-    positionName?: string
-    avatarUrl?: string
-}
+import type { UserCardProps } from '@/types/types'
 
 export const UserCard: FC<UserCardProps> = ({
     id,

@@ -5,14 +5,9 @@ import { Box, IconButton, Typography } from "@mui/material"
 import { useLocation, useNavigate } from "react-router-dom"
 
 import { GET_USER } from "@/api/queries/getUser"
+import { getId } from "@/components/constants"
+import type { SideMenuProps } from "@/types/types"
 import { ICONS } from "@/ui/constants"
-
-import { getId } from "../constants"
-
-interface SideMenuProps {
-    open: boolean
-    toggleMenu: () => void
-}
 
 export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
     const location = useLocation();

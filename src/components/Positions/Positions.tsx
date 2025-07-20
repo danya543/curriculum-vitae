@@ -8,21 +8,8 @@ import {
 } from "@mui/material";
 
 import { GET_POSITIONS } from "@/api/queries/getPosition";
-
-interface Position {
-    id: string;
-    name: string;
-    created_at: string;
-}
-
-interface PositionsData {
-    positions: Position[];
-}
-
-interface PositionsProps {
-    position: string;
-    onChange: (value: string) => void;
-}
+import type { PositionsData } from "@/api/types";
+import type { PositionsProps } from "@/types/types";
 
 export const Positions = ({ position, onChange }: PositionsProps) => {
     const { data, loading, error } = useQuery<PositionsData>(GET_POSITIONS);

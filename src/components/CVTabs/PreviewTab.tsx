@@ -1,10 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import React from "react";
 
-interface PreviewTabProps {
-    cvName: string;
-    description: string;
-}
+import type { PreviewTabProps } from "@/types/types";
 
 export const PreviewTab: React.FC<PreviewTabProps> = ({ cvName, description }) => (
     <Box>

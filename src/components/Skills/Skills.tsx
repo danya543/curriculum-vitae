@@ -2,24 +2,7 @@ import { useQuery } from "@apollo/client";
 import { Box, CircularProgress, List, ListItem, ListItemText, Typography } from "@mui/material";
 
 import { GET_SKILLS } from "@/api/queries/getSkills";
-
-interface Category {
-    id: string;
-    name: string;
-}
-
-export interface Skill {
-    id: string;
-    created_at: string;
-    name: string;
-    category: Category | null;
-    category_name: string | null;
-    category_parent_name: string | null;
-}
-
-export interface SkillsData {
-    skills: Skill[];
-}
+import type { SkillsData } from "@/api/types";
 
 export const Skills = () => {
     const { data, loading, error } = useQuery<SkillsData>(GET_SKILLS);

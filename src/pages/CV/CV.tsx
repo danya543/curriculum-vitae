@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client";
-import { Box, Button, CircularProgress, Typography } from "@mui/material";
-import { useNavigate, useParams } from "react-router-dom";
+import { Box, CircularProgress, Typography } from "@mui/material";
+import { useParams } from "react-router-dom";
 
 import { GET_CV } from "@/api/queries/getCV";
 import { CVTabs } from "@/components/CVTabs/CVTabs";
@@ -12,7 +12,6 @@ import { BreadcrumbsNav } from "@/components/Nav/Nav";
 
 export const CVPage = () => {
     const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
 
     const { data, loading, error } = useQuery(GET_CV, {
         variables: { cvId: id },
@@ -32,12 +31,10 @@ export const CVPage = () => {
 
     return (
         <Box sx={{ p: 3 }}>
-            <Button onClick={() => navigate("/cvs")} sx={{ mb: 2 }}>
-                ← Back to CVs
-            </Button>
-
-            <BreadcrumbsNav cvName={cv.name} />
-
+            <BreadcrumbsNav breadcrumbs={[
+                { label: "CVs", to: "/cvs" },
+                { label: cv.name },
+            ]} />
             <CVTabs
                 details={
                     <DetailsTab

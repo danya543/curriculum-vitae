@@ -39,7 +39,7 @@ export const CREATE_CV = gql`
         environment
         roles
         responsibilities
-        }
+      }
     }
   }
 `;

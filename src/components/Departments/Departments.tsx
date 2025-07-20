@@ -8,21 +8,7 @@ import {
 } from "@mui/material";
 
 import { GET_DEPARTMENTS } from "@/api/queries/getDepartments";
-
-interface Department {
-    id: string;
-    name: string;
-    created_at: string;
-}
-
-interface DepartmentsData {
-    departments: Department[];
-}
-
-interface DepartmentsProps {
-    department: string;
-    onChange: (value: string) => void;
-}
+import type { DepartmentsData, DepartmentsProps } from "@/types/types";
 
 export const Departments = ({ department, onChange }: DepartmentsProps) => {
     const { data, loading, error } = useQuery<DepartmentsData>(GET_DEPARTMENTS);

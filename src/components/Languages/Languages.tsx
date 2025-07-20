@@ -9,18 +9,7 @@ import {
 } from "@mui/material";
 
 import { GET_LANGUAGES } from "@/api/queries/getLanguages";
-
-export interface Language {
-    id: string;
-    created_at: string;
-    iso2: string;
-    name: string;
-    native_name: string;
-}
-
-export interface LanguagesData {
-    languages: Language[];
-}
+import type { LanguagesData } from "@/api/types";
 
 export const Languages = () => {
     const { data, loading, error } = useQuery<LanguagesData>(GET_LANGUAGES);

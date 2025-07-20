@@ -1,18 +1,35 @@
 import { Breadcrumbs, Link, Typography } from "@mui/material";
-import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 
-interface BreadcrumbsNavProps {
-    cvName: string;
-}
+type BreadcrumbItem = {
+    label: string;
+    to?: string;
+};
 
-export const BreadcrumbsNav: React.FC<BreadcrumbsNavProps> = ({ cvName }) => {
+type BreadcrumbsNavProps = {
+    breadcrumbs: BreadcrumbItem[];
+};
+
+export const BreadcrumbsNav = ({ breadcrumbs }: BreadcrumbsNavProps) => {
     return (
         <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
-            <Link component={RouterLink} to="/cvs" underline="hover" color="inherit">
-                CVs
-            </Link>
-            <Typography color="text.primary">{cvName}</Typography>
+            {breadcrumbs.map((item, index) =>
+                item.to ? (
+                    <Link
+                        key={index}
+                        component={RouterLink}
+                        to={item.to}
+                        underline="hover"
+                        color="inherit"
+                    >
+                        {item.label}
+                    </Link>
+                ) : (
+                    <Typography key={index} color="text.primary">
+                        {item.label}
+                    </Typography>
+                )
+            )}
         </Breadcrumbs>
     );
 };

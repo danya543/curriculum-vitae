@@ -1,17 +1,16 @@
 import { useQuery } from "@apollo/client";
 import {
     Box,
-    Breadcrumbs,
     Container,
     Tab,
     Tabs,
-    Typography,
 } from "@mui/material";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { GET_USER } from "@/api/queries/getUser";
 import { Languages } from "@/components/Languages/Languages";
+import { BreadcrumbsNav } from "@/components/Nav/Nav";
 import { Profile } from "@/components/Profile/Profile";
 import { Skills } from "@/components/Skills/Skills";
 
@@ -35,12 +34,10 @@ export const UserPage = () => {
 
     return (
         <Container sx={{ mt: 2, height: '90vh', display: 'flex', flexDirection: 'column' }}>
-            <Breadcrumbs>
-                <Typography color="text.secondary">Employees</Typography>
-                <Typography color="text.primary">
-                    {user.profile.first_name} {user.profile.last_name}
-                </Typography>
-            </Breadcrumbs>
+            <BreadcrumbsNav breadcrumbs={[
+                { label: "Employees", to: "/users" },
+                { label: `${user.profile.first_name} ${user.profile.last_name}` },
+            ]} />
 
             <Box sx={{ mt: 3, flexShrink: 0 }}>
                 <Tabs value={tab} onChange={handleTabChange}>

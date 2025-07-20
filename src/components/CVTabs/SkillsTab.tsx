@@ -1,17 +1,7 @@
 import { List, ListItem, ListItemText, Typography } from "@mui/material";
 import React from "react";
 
-interface Skill {
-    skill: {
-        id: string;
-        name: string;
-    };
-    level: string;
-}
-
-interface SkillsTabProps {
-    skills: Skill[];
-}
+import type { SkillsTabProps } from "@/types/types";
 
 export const SkillsTab: React.FC<SkillsTabProps> = ({ skills }) => (
     <>
@@ -19,9 +9,9 @@ export const SkillsTab: React.FC<SkillsTabProps> = ({ skills }) => (
             <Typography>No skills added.</Typography>
         ) : (
             <List dense>
-                {skills.map(({ skill, level }) => (
-                    <ListItem key={skill.id}>
-                        <ListItemText primary={skill.name} secondary={`Level: ${level}`} />
+                {skills.map(({ name, mastery, categoryId }) => (
+                    <ListItem key={categoryId}>
+                        <ListItemText primary={name} secondary={`Level: ${mastery}`} />
                     </ListItem>
                 ))}
             </List>

@@ -1,11 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import React from "react";
 
-interface DetailsTabProps {
-    description: string;
-    education: string | null;
-    createdAt: string;
-}
+import type { DetailsTabProps } from "@/types/types";
 
 export const DetailsTab: React.FC<DetailsTabProps> = ({
     description,

@@ -1,15 +1,7 @@
 import { List, ListItem, ListItemText, Typography } from "@mui/material";
 import React from "react";
 
-interface Project {
-    id: string;
-    name: string;
-    description: string;
-}
-
-interface ProjectsTabProps {
-    projects: Project[];
-}
+import type { ProjectsTabProps } from "@/types/types";
 
 export const ProjectsTab: React.FC<ProjectsTabProps> = ({ projects }) => (
     <>

@@ -1,11 +1,7 @@
 import { Box, Tab, Tabs } from "@mui/material";
 import React from "react";
 
-interface TabPanelProps {
-    children?: React.ReactNode;
-    index: number;
-    value: number;
-}
+import type { CVTabsProps, TabPanelProps } from "@/types/types";
 
 function TabPanel(props: TabPanelProps) {
     const { children, value, index, ...other } = props;
@@ -21,13 +17,6 @@ function TabPanel(props: TabPanelProps) {
             {value === index && <Box sx={{ p: 2 }}>{children}</Box>}
         </div>
     );
-}
-
-interface CVTabsProps {
-    details: React.ReactNode;
-    skills: React.ReactNode;
-    projects: React.ReactNode;
-    preview: React.ReactNode;
 }
 
 export const CVTabs: React.FC<CVTabsProps> = ({
