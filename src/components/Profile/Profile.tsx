@@ -78,7 +78,7 @@ export const Profile = ({ user }: ProfileProps) => {
     const isChanged = JSON.stringify(form) !== JSON.stringify(initialState);
 
     const email = user.email || user.profile.email || "";
-    const joinedAt = user.created_at ? user.created_at.split("T")[0] : "";
+    const joinedAt = user.created_at ? new Date(+user.created_at).toLocaleDateString() : "";
     const avatarUrl = user.profile.avatar_url || "/avatar.png";
 
     return (

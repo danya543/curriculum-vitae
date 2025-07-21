@@ -38,13 +38,15 @@ export const CVPage = () => {
             <CVTabs
                 details={
                     <DetailsTab
+                        name={cv.name}
                         description={cv.description}
                         education={cv.education}
                         createdAt={cv.created_at}
+                        cvId={cv.id}
                     />
                 }
-                skills={<SkillsTab skills={cv.skills} />}
-                projects={<ProjectsTab projects={cv.projects} />}
+                skills={<SkillsTab skills={cv.skills} cvId={cv.id} />}
+                projects={<ProjectsTab projects={cv.projects} cvId={cv.id} />}
                 preview={<PreviewTab cvName={cv.name} description={cv.description} />}
             />
         </Box>

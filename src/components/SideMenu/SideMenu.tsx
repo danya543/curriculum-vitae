@@ -1,21 +1,23 @@
 import { useQuery } from "@apollo/client"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import { Box, IconButton, Typography } from "@mui/material"
+import { Avatar, Box, IconButton, Menu, MenuItem, Typography } from "@mui/material"
+import { useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 import { GET_USER } from "@/api/queries/getUser"
-import { getId } from "@/components/constants"
+import { getId, removeTokens } from "@/components/constants"
 import type { SideMenuProps } from "@/types/types"
 import { ICONS } from "@/ui/constants"
 
 export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
-    const location = useLocation();
-    const navigate = useNavigate();
+    const location = useLocation()
+    const navigate = useNavigate()
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
     const { data, loading } = useQuery(GET_USER, {
-        variables: { userId: getId() }
-    });
+        variables: { userId: getId() },
+    })
 
     const menuItems = [
         { label: 'Employees', Icon: ICONS.Employees, link: '/users', active: location.pathname.includes('/users') },
@@ -24,23 +26,37 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
         { label: 'CVs', Icon: ICONS.CVs, link: '/cvs', active: location.pathname.includes('/cvs') },
     ]
 
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget)
+    }
+
+    const handleMenuClose = () => {
+        setAnchorEl(null)
+    }
+
+    const handleLogout = () => {
+        removeTokens();
+        navigate('/auth/login')
+    }
+
     return (
         <>
             <Box
                 sx={{
                     position: 'fixed',
                     top: 0,
-                    left: open ? 0 : '-240px',
-                    width: 240,
+                    left: 0,
+                    width: open ? 240 : 56,
                     height: '100vh',
                     bgcolor: 'background.paper',
                     boxShadow: 3,
-                    transition: 'left 0.3s ease-in-out',
+                    transition: 'width 0.3s ease-in-out',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
                     zIndex: 1000,
-                    p: 2,
+                    p: open ? 2 : 1,
+                    overflowX: 'hidden',
                 }}
             >
                 <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
@@ -52,48 +68,75 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                             sx={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 1,
+                                gap: open ? 1 : 0,
                                 p: 1,
                                 borderRadius: 1,
                                 cursor: 'pointer',
                                 transition: 'background 0.2s',
                                 '&:hover': { bgcolor: 'action.hover' },
+                                justifyContent: open ? 'flex-start' : 'center',
                             }}
                         >
-                            <Icon style={{ width: 24, height: 24, opacity: active ? 1 : 0.6 }} />
-                            <Typography>{label}</Typography>
+                            <Icon
+                                style={{
+                                    width: 24,
+                                    height: 24,
+                                    fill: active ? 'red' : 'black',
+                                    transition: 'color 0.3s',
+                                }}
+                            />
+                            {open && <Typography>{label}</Typography>}
                         </Box>
                     ))}
                 </Box>
 
                 <Box sx={{ textAlign: 'center' }}>
-                    {!loading ? <Typography variant="body2" mb={1}>{data.user.profile.first_name} {data.user.profile.last_name}</Typography> : 'loading...'}
+                    {!loading && data?.user ? (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: open ? 'flex-start' : 'center',
+                                gap: 1,
+                                cursor: 'pointer',
+                                mb: 1,
+                            }}
+                            onClick={handleMenuOpen}
+                        >
+                            <Avatar sx={{ width: 32, height: 32 }}>
+                                {data.user.profile.first_name[0]}
+                            </Avatar>
+                            {open && (
+                                <Typography variant="body2" noWrap>
+                                    {data.user.profile.first_name} {data.user.profile.last_name}
+                                </Typography>
+                            )}
+                        </Box>
+                    ) : (
+                        open && <Typography>loading...</Typography>
+                    )}
+
                     <IconButton size="small" onClick={toggleMenu}>
-                        <ChevronLeftIcon />
+                        {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                     </IconButton>
                 </Box>
             </Box>
 
-            {!open && (
-                <Box
-                    sx={{
-                        position: 'fixed',
-                        left: 0,
-                        bottom: 20,
-                        zIndex: 1100,
-                        bgcolor: 'background.paper',
-                        boxShadow: 3,
-                        borderTopRightRadius: 8,
-                        borderBottomRightRadius: 8,
-                        py: 0.5,
-                        px: 0.5,
-                    }}
-                >
-                    <IconButton onClick={toggleMenu} size="small">
-                        <ChevronRightIcon />
-                    </IconButton>
-                </Box>
-            )}
+            {/* Контекстное меню */}
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleMenuClose}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <MenuItem onClick={() => { handleMenuClose(); navigate('/profile') }}>
+                    Profile
+                </MenuItem>
+                <MenuItem onClick={() => { handleMenuClose(); handleLogout() }}>
+                    Log out
+                </MenuItem>
+            </Menu>
         </>
     )
 }

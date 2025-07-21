@@ -3,14 +3,18 @@ type LanguageInput = {
     proficiency: string;
 };
 
-type SkillInput = {
+export type SkillInput = {
     name: string;
     categoryId: string;
+    categoryName: string;
     mastery: string;
 };
-
+export interface Skills {
+    skills: SkillInput[];
+}
 export interface SkillsTabProps {
     skills: SkillInput[];
+    cvId: number;
 }
 
 type ProjectInput = {
@@ -70,9 +74,11 @@ export interface CVTabsProps {
 }
 
 export interface DetailsTabProps {
+    name: string;
     description: string;
     education: string | null;
     createdAt: string;
+    cvId: number;
 }
 
 export interface PreviewTabProps {
@@ -89,6 +95,7 @@ export interface Project {
 
 export interface ProjectsTabProps {
     projects: Project[];
+    cvId: number;
 }
 
 

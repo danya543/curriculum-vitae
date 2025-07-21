@@ -19,9 +19,16 @@ export const Register = () => {
         email: '',
         password: '',
     })
+    const [errors, setErrors] = useState({
+        email: '',
+        password: '',
+    })
     const [showPassword, setShowPassword] = useState(false)
+    const [loading, setLoading] = useState(false)
+
     const { isAuthenticated } = useAuth()
     const navigate = useNavigate()
+    const { showAlert } = useAlert()
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -29,16 +36,37 @@ export const Register = () => {
         }
     }, [isAuthenticated, navigate])
 
+    const validate = () => {
+        const newErrors = { email: '', password: '' }
+
+        if (!form.email) {
+            newErrors.email = 'Email is required'
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+            newErrors.email = 'Email is invalid'
+        }
+
+        if (!form.password) {
+            newErrors.password = 'Password is required'
+        } else if (form.password.length < 6) {
+            newErrors.password = 'Password must be at least 6 characters'
+        }
+
+        setErrors(newErrors)
+        return !newErrors.email && !newErrors.password
+    }
+
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
         setForm(prev => ({ ...prev, [name]: value }))
     }
-    const { showAlert } = useAlert()
 
     const toggleShowPassword = () => setShowPassword(prev => !prev)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!validate()) return
+
+        setLoading(true)
         try {
             await signup(form)
             showAlert({ type: 'success', message: 'Sign up successfully' })
@@ -46,8 +74,12 @@ export const Register = () => {
         } catch (err) {
             console.error(err)
             showAlert({ type: 'error', message: 'Sign up error' })
+        } finally {
+            setLoading(false)
         }
     }
+
+    const isSubmitDisabled = !form.email || !form.password || !!errors.email || !!errors.password || loading
 
     return (
         <Box
@@ -78,9 +110,12 @@ export const Register = () => {
                 name="email"
                 value={form.email}
                 onChange={handleChange}
+                onBlur={validate}
                 variant="outlined"
                 fullWidth
                 required
+                error={!!errors.email}
+                helperText={errors.email}
             />
             <TextField
                 label="Password"
@@ -88,9 +123,12 @@ export const Register = () => {
                 type={showPassword ? 'text' : 'password'}
                 value={form.password}
                 onChange={handleChange}
+                onBlur={validate}
                 variant="outlined"
                 fullWidth
                 required
+                error={!!errors.password}
+                helperText={errors.password}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
@@ -105,18 +143,32 @@ export const Register = () => {
             <Button
                 type="submit"
                 variant="contained"
+                disabled={isSubmitDisabled}
                 sx={{
                     backgroundColor: 'rgba(198, 48, 49, 1)',
                     ':hover': { backgroundColor: 'rgba(170, 40, 42, 1)' }
                 }}
             >
-                Create accout
+                {loading ? 'Creating...' : 'Create account'}
             </Button>
 
             <Box textAlign="center" mt={1}>
-                <a href="#" style={{ color: 'rgb(118, 118, 118)', textDecoration: 'none', fontWeight: 500 }}>
+                <Typography
+                    component="a"
+                    href="#"
+                    onClick={(e) => {
+                        e.preventDefault()
+                        navigate('/users')
+                    }}
+                    sx={{
+                        color: 'rgb(118, 118, 118)',
+                        textDecoration: 'none',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                    }}
+                >
                     I have an account
-                </a>
+                </Typography>
             </Box>
         </Box>
     )

@@ -4,11 +4,10 @@ export const GET_SKILLS = gql`
   query GetSkills {
   skills {
     id
-    created_at
     name
     category {
       id
-      name
+      order
     }
     category_name
     category_parent_name

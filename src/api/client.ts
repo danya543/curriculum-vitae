@@ -1,10 +1,19 @@
-import { ApolloClient, createHttpLink, from, InMemoryCache } from '@apollo/client'
+import {
+    ApolloClient,
+    createHttpLink,
+    from,
+    fromPromise,
+    InMemoryCache,
+} from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
-// import { refreshToken } from './token'
-import { redirect } from 'react-router-dom'
 
-import { getAccessToken, removeTokens } from '@/components/constants'
+import { UPDATE_TOKEN } from '@/api/mutations/updToken'
+import {
+    getAccessToken,
+    getRefreshToken,
+    setTokens,
+} from '@/components/constants'
 
 const httpLink = createHttpLink({
     uri: 'https://cv-project-js.inno.ws/api/graphql',
@@ -20,28 +29,79 @@ const authLink = setContext((_, { headers }) => {
     }
 })
 
-const errorLink = onError(({ graphQLErrors }) => {
-    if (graphQLErrors) {
-        for (const err of graphQLErrors) {
-            if (err.extensions?.code === 'UNAUTHENTICATED') {
-                /* return fromPromise(refreshToken())
-                .filter(Boolean)
-                .flatMap(newAccessToken => {
-                    operation.setContext(({ headers = {} }) => ({
-                        headers: {
-                            ...headers,
-                            Authorization: `Bearer ${newAccessToken}`,
-                        },
-                    }))
+let isRefreshing = false
+let pendingRequests: (() => void)[] = []
 
-                    return forward(operation)
-                }) */
-                removeTokens();
-                window.location.href = '/auth/login'
-                redirect('/auth/login')
-                return
+const resolvePendingRequests = () => {
+    pendingRequests.forEach(callback => callback())
+    pendingRequests = []
+}
+
+const tokenClient = new ApolloClient({
+    link: setContext((_, { headers }) => {
+        const refreshToken = getRefreshToken()
+        return {
+            headers: {
+                ...headers,
+                Authorization: refreshToken ? `Bearer ${refreshToken}` : '',
+            },
+        }
+    }).concat(httpLink),
+    cache: new InMemoryCache(),
+})
+
+const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+    if (graphQLErrors) {
+        const unauthenticated = graphQLErrors.some(
+            err => err.extensions?.code === 'UNAUTHENTICATED'
+        )
+
+        if (unauthenticated) {
+            if (!isRefreshing) {
+                isRefreshing = true
+
+                return fromPromise(
+                    tokenClient
+                        .mutate({ mutation: UPDATE_TOKEN }) // 👈 mutation, не query
+                        .then(response => {
+                            const tokens = response.data?.updateToken
+                            if (!tokens?.access_token || !tokens?.refresh_token) {
+                                throw new Error('No tokens returned')
+                            }
+                            setTokens(tokens.access_token, tokens.refresh_token)
+                            resolvePendingRequests()
+                            return tokens.access_token
+                        })
+                        .catch(error => {
+                            console.error('[Refresh token failed]', error)
+                            return null
+                        })
+                        .finally(() => {
+                            isRefreshing = false
+                        })
+                )
+                    .filter((token): token is string => Boolean(token))
+                    .flatMap(newAccessToken => {
+                        operation.setContext(({ headers = {} }) => ({
+                            headers: {
+                                ...headers,
+                                Authorization: `Bearer ${newAccessToken}`,
+                            },
+                        }))
+                        return forward(operation)
+                    })
+            } else {
+                return fromPromise(
+                    new Promise<void>(resolve => {
+                        pendingRequests.push(() => resolve())
+                    })
+                ).flatMap(() => forward(operation))
             }
         }
+    }
+
+    if (networkError) {
+        console.error('[Network error]', networkError)
     }
 })
 

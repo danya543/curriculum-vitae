@@ -8,6 +8,7 @@ export const LOGIN = gql`
         email
       }
       access_token
+      refresh_token
     }
   }
 `;

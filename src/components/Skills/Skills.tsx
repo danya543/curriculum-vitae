@@ -15,7 +15,6 @@ export const Skills = () => {
             sx={{
                 maxHeight: "100vh",
                 boxSizing: 'border-box',
-                overflowY: "auto",
                 pr: 1,
             }}
         >

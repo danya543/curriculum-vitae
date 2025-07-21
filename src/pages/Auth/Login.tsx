@@ -1,4 +1,5 @@
-import { Visibility, VisibilityOff } from '@mui/icons-material'
+import { useLazyQuery } from '@apollo/client';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -7,46 +8,66 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { type ChangeEvent, useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { type ChangeEvent, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
+import { LOGIN } from '@/api/mutations/auth';
+import { setId, setTokens } from '@/components/constants';
 import { useAuth } from '@/hooks/useAuth';
-import { login } from '@/services/authService'
 import { useAlert } from '@/ui/Alert/useAlert';
 
 export const Login = () => {
-    const { isAuthenticated } = useAuth()
-    const navigate = useNavigate()
+    const { isAuthenticated } = useAuth();
+    const navigate = useNavigate();
+    const { showAlert } = useAlert();
 
     useEffect(() => {
         if (isAuthenticated) {
-            setTimeout(() => navigate('/users'), 3500)
+            navigate('/users');
         }
     }, [isAuthenticated, navigate])
 
-    const [form, setForm] = useState({ email: '', password: '' })
-    const [showPassword, setShowPassword] = useState(false)
+    const [form, setForm] = useState({ email: '', password: '' });
+    const [showPassword, setShowPassword] = useState(false);
+
+    const [loginQuery, { loading, data }] = useLazyQuery(LOGIN);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setForm(prev => ({ ...prev, [name]: value }))
-    }
+        const { name, value } = e.target;
+        setForm(prev => ({ ...prev, [name]: value }));
+    };
 
-    const toggleShowPassword = () => setShowPassword(show => !show)
+    const toggleShowPassword = () => setShowPassword(show => !show);
 
-    const { showAlert } = useAlert()
+    const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+    const isPasswordValid = form.password.trim().length > 0;
+    const isFormValid = isEmailValid && isPasswordValid;
+
+    useEffect(() => {
+        if (data?.login?.access_token && data?.login?.refresh_token) {
+            setTokens(data.login.access_token, data.login.refresh_token);
+            setId(data.login.user.id);
+            showAlert({ type: 'success', message: 'Log in successfully' });
+        }
+    }, [data, navigate, showAlert]);
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
+        e.preventDefault();
         try {
-            await login(form);
-            showAlert({ type: 'success', message: 'Log in successfully' })
+            await loginQuery({
+                variables: {
+                    auth: {
+                        email: form.email,
+                        password: form.password,
+                    },
+                },
+            });
+            navigate('/users');
         } catch (err) {
-            showAlert({ type: 'error', message: 'Login error' })
-            console.error(err)
+            showAlert({ type: 'error', message: 'Login error' });
+            console.error(err);
         }
-    }
-
+    };
 
     return (
         <Box
@@ -80,6 +101,8 @@ export const Login = () => {
                 variant="outlined"
                 fullWidth
                 required
+                error={!!form.email && !isEmailValid}
+                helperText={form.email && !isEmailValid ? 'Invalid email' : ''}
             />
             <TextField
                 label="Password"
@@ -90,6 +113,8 @@ export const Login = () => {
                 variant="outlined"
                 fullWidth
                 required
+                error={!isPasswordValid && !!form.password}
+                helperText={!isPasswordValid && !!form.password ? 'Password is required' : ''}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
@@ -104,6 +129,7 @@ export const Login = () => {
             <Button
                 type="submit"
                 variant="contained"
+                disabled={!isFormValid || loading}
                 sx={{
                     backgroundColor: 'rgb(198, 48, 49)',
                     ':hover': { backgroundColor: 'rgb(170, 40, 42)' },
@@ -125,5 +151,5 @@ export const Login = () => {
                 </Link>
             </Box>
         </Box>
-    )
-}
+    );
+};
