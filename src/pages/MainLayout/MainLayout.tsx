@@ -14,7 +14,7 @@ export const MainLayout = () => {
             <Box
                 component="main"
                 sx={{
-                    ml: open ? '240px' : '0px',
+                    ml: open ? '240px' : '56px',
                     transition: 'margin-left 0.3s ease-in-out',
                     p: 3,
                 }}

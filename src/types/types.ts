@@ -1,3 +1,5 @@
+import type { Mastery } from "@/components/CVTabs/constants";
+
 type LanguageInput = {
     name: string;
     proficiency: string;
@@ -9,11 +11,22 @@ export type SkillInput = {
     categoryName: string;
     mastery: string;
 };
+
+export type MasteryLevel = typeof Mastery[number];
+export interface Skill {
+    id: string;
+    name: string;
+    category: { id: string };
+    categoryId: string;
+    category_name: string;
+    category_parent_name: string;
+    mastery: MasteryLevel;
+}
 export interface Skills {
-    skills: SkillInput[];
+    skills: Skill[];
 }
 export interface SkillsTabProps {
-    skills: SkillInput[];
+    skills: Skill[];
     cvId: number;
 }
 
@@ -71,6 +84,8 @@ export interface CVTabsProps {
     skills: React.ReactNode;
     projects: React.ReactNode;
     preview: React.ReactNode;
+    activeTab?: 'details' | 'skills' | 'projects' | 'preview';
+    onTabChange?: (newTabKey: 'details' | 'skills' | 'projects' | 'preview') => void;
 }
 
 export interface DetailsTabProps {
@@ -139,4 +154,18 @@ export interface AlertPortalProps {
     type: 'success' | 'error' | 'info'
     message: string
     duration?: number
+}
+
+export interface SkillCategory {
+    id: string;
+    name: string;
+    order: number;
+    parent?: {
+        id: string;
+        name: string;
+    } | null;
+    children: {
+        id: string;
+        name: string;
+    }[];
 }

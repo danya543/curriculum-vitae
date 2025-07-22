@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client";
 import { Box, CircularProgress, Typography } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 import { GET_CV } from "@/api/queries/getCV";
 import { CVTabs } from "@/components/CVTabs/CVTabs";
@@ -10,8 +10,22 @@ import { ProjectsTab } from "@/components/CVTabs/ProjectsTab";
 import { SkillsTab } from "@/components/CVTabs/SkillsTab";
 import { BreadcrumbsNav } from "@/components/Nav/Nav";
 
+const tabNames: Record<string, string> = {
+    details: "Details",
+    skills: "Skills",
+    projects: "Projects",
+    preview: "Preview",
+};
+export type CVTabKey = 'details' | 'skills' | 'projects' | 'preview';
+
 export const CVPage = () => {
     const { id } = useParams<{ id: string }>();
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    const rawTab = searchParams.get("tab");
+    const activeTab: CVTabKey = rawTab && ['details', 'skills', 'projects', 'preview'].includes(rawTab)
+        ? (rawTab as CVTabKey)
+        : 'details';
 
     const { data, loading, error } = useQuery(GET_CV, {
         variables: { cvId: id },
@@ -29,13 +43,22 @@ export const CVPage = () => {
 
     const cv = data.cv;
 
+    const handleTabChange = (tabKey: string) => {
+        setSearchParams({ tab: tabKey });
+    };
+
+    const breadcrumbs = [
+        { label: "CVs", to: "/cvs" },
+        { label: cv.name, to: `/cvs/${cv.id}` },
+        { label: tabNames[activeTab] },
+    ];
+
     return (
         <Box sx={{ p: 3 }}>
-            <BreadcrumbsNav breadcrumbs={[
-                { label: "CVs", to: "/cvs" },
-                { label: cv.name },
-            ]} />
+            <BreadcrumbsNav breadcrumbs={breadcrumbs} />
             <CVTabs
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
                 details={
                     <DetailsTab
                         name={cv.name}

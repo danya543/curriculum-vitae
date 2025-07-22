@@ -1,7 +1,7 @@
 import { useQuery } from "@apollo/client"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import { Avatar, Box, IconButton, Menu, MenuItem, Typography } from "@mui/material"
+import { Avatar, Box, IconButton, Menu, MenuItem, Typography, useTheme } from "@mui/material"
 import { useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
@@ -13,6 +13,8 @@ import { ICONS } from "@/ui/constants"
 export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
     const location = useLocation()
     const navigate = useNavigate()
+    const theme = useTheme()
+
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
     const { data, loading } = useQuery(GET_USER, {
@@ -70,7 +72,7 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                                 alignItems: 'center',
                                 gap: open ? 1 : 0,
                                 p: 1,
-                                borderRadius: 1,
+                                borderRadius: 7,
                                 cursor: 'pointer',
                                 transition: 'background 0.2s',
                                 '&:hover': { bgcolor: 'action.hover' },
@@ -81,8 +83,8 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                                 style={{
                                     width: 24,
                                     height: 24,
-                                    fill: active ? 'red' : 'black',
                                     transition: 'color 0.3s',
+                                    color: active ? theme.palette.text.primary : theme.palette.text.secondary,
                                 }}
                             />
                             {open && <Typography>{label}</Typography>}
@@ -100,10 +102,13 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                                 gap: 1,
                                 cursor: 'pointer',
                                 mb: 1,
+                                p: '5px 7px',
+                                borderRadius: 10,
+                                '&:hover': { bgcolor: 'action.hover' },
                             }}
                             onClick={handleMenuOpen}
                         >
-                            <Avatar sx={{ width: 32, height: 32 }}>
+                            <Avatar sx={{ width: 32, height: 32, bgcolor: '#C63031' }}>
                                 {data.user.profile.first_name[0]}
                             </Avatar>
                             {open && (
@@ -113,7 +118,7 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                             )}
                         </Box>
                     ) : (
-                        open && <Typography>loading...</Typography>
+                        open && <Typography>Loading...</Typography>
                     )}
 
                     <IconButton size="small" onClick={toggleMenu}>
@@ -122,7 +127,6 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                 </Box>
             </Box>
 
-            {/* Контекстное меню */}
             <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}

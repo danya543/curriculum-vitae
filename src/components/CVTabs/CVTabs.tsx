@@ -1,7 +1,16 @@
 import { Box, Tab, Tabs } from "@mui/material";
 import React from "react";
 
+import type { CVTabKey } from "@/pages/CV/CV";
 import type { CVTabsProps, TabPanelProps } from "@/types/types";
+
+const tabIndexToKey: CVTabKey[] = ['details', 'skills', 'projects', 'preview'];
+const tabKeyToIndex: Record<CVTabKey, number> = {
+    details: 0,
+    skills: 1,
+    projects: 2,
+    preview: 3,
+};
 
 function TabPanel(props: TabPanelProps) {
     const { children, value, index, ...other } = props;
@@ -24,10 +33,14 @@ export const CVTabs: React.FC<CVTabsProps> = ({
     skills,
     projects,
     preview,
+    activeTab = 'details',
+    onTabChange,
 }) => {
-    const [value, setValue] = React.useState(0);
+    const value = tabKeyToIndex[activeTab] ?? 0;
+
     const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-        setValue(newValue);
+        const newTabKey = tabIndexToKey[newValue];
+        onTabChange?.(newTabKey);
     };
 
     return (
@@ -39,18 +52,10 @@ export const CVTabs: React.FC<CVTabsProps> = ({
                 <Tab label="Preview" id="cv-tab-3" aria-controls="cv-tabpanel-3" />
             </Tabs>
 
-            <TabPanel value={value} index={0}>
-                {details}
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-                {skills}
-            </TabPanel>
-            <TabPanel value={value} index={2}>
-                {projects}
-            </TabPanel>
-            <TabPanel value={value} index={3}>
-                {preview}
-            </TabPanel>
+            <TabPanel value={value} index={0}>{details}</TabPanel>
+            <TabPanel value={value} index={1}>{skills}</TabPanel>
+            <TabPanel value={value} index={2}>{projects}</TabPanel>
+            <TabPanel value={value} index={3}>{preview}</TabPanel>
         </>
     );
 };
