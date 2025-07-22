@@ -9,7 +9,13 @@ export const MainLayout = () => {
     const toggleMenu = () => setOpen(prev => !prev)
 
     return (
-        <Box>
+        <Box
+            sx={{
+                height: '100vh',
+                display: 'flex',
+                overflow: 'hidden'
+            }}
+        >
             <SideMenu open={open} toggleMenu={toggleMenu} />
             <Box
                 component="main"
@@ -17,6 +23,11 @@ export const MainLayout = () => {
                     ml: open ? '240px' : '56px',
                     transition: 'margin-left 0.3s ease-in-out',
                     p: 3,
+                    flexGrow: 1,
+                    height: '100vh',
+                    overflowY: 'auto',
+                    overflowX: 'hidden',
+                    boxSizing: 'border-box',
                 }}
             >
                 <Outlet />

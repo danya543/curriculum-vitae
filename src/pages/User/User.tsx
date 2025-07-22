@@ -9,10 +9,10 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { GET_USER } from "@/api/queries/getUser";
-import { Languages } from "@/components/Languages/Languages";
 import { BreadcrumbsNav } from "@/components/Nav/Nav";
 import { Profile } from "@/components/Profile/Profile";
-import { Skills } from "@/components/Skills/Skills";
+import { Languages } from "@/pages/Languages/Languages";
+import { Skills } from "@/pages/Skills/Skills";
 
 export const UserPage = () => {
     const { id } = useParams();

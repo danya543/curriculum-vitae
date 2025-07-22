@@ -2,15 +2,15 @@ import { Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 
 import { CVs } from '@/components/CVs/CVs';
-import { Languages } from '@/components/Languages/Languages';
-import { Skills } from '@/components/Skills/Skills';
 import { Login } from '@/pages/Auth/Login';
 import { Register } from '@/pages/Auth/Register';
 import { AuthLayout } from '@/pages/AuthLayout/AuthLayout';
 import { CVPage } from '@/pages/CV/CV';
 import { ForgotPassword } from '@/pages/ForgotPassword/ForgotPassword';
+import { Languages } from '@/pages/Languages/Languages';
 import { MainPage } from '@/pages/Main/Main';
 import { MainLayout } from '@/pages/MainLayout/MainLayout';
+import { Skills } from '@/pages/Skills/Skills';
 import { UserPage } from '@/pages/User/User';
 import { UsersPage } from '@/pages/Users/Users';
 

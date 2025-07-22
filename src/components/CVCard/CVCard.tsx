@@ -41,7 +41,7 @@ export const CvCard: React.FC<CvCardProps> = ({ cv, onClick, onDeleteSuccess, sh
                 cursor: "pointer",
                 position: "relative",
                 "&:hover": {
-                    backgroundColor: "grey.100",
+                    backgroundColor: "action.hover",
                     ".delete-btn": {
                         opacity: 1,
                     },

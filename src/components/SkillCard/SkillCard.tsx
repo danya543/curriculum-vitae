@@ -31,9 +31,9 @@ export const SkillCard: React.FC<Props> = ({ skill, deleteMode, isSelected, onCl
                 value={masteryToProgress[skill.mastery]}
                 sx={{
                     width: '80px',
-                    height: 6,
-                    backgroundColor: '#eee',
-                    '& .MuiLinearProgress-bar': { backgroundColor: masteryToColor[skill.mastery] },
+                    height: 4,
+                    backgroundColor: masteryToColor[skill.mastery].bg,
+                    '& .MuiLinearProgress-bar': { backgroundColor: masteryToColor[skill.mastery].progress },
                 }}
             />
         </Box>

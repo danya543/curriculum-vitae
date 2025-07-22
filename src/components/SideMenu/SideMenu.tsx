@@ -134,7 +134,7 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-                <MenuItem onClick={() => { handleMenuClose(); navigate('/profile') }}>
+                <MenuItem onClick={() => { handleMenuClose(); navigate(`/users/${data.user.id}`) }}>
                     Profile
                 </MenuItem>
                 <MenuItem onClick={() => { handleMenuClose(); handleLogout() }}>
