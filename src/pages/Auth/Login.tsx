@@ -25,12 +25,12 @@ export const Login = () => {
         if (isAuthenticated) {
             navigate('/users');
         }
-    }, [isAuthenticated, navigate])
+    }, [])
 
     const [form, setForm] = useState({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
 
-    const [loginQuery, { loading, data }] = useLazyQuery(LOGIN);
+    const [loginQuery, { loading, data, error }] = useLazyQuery(LOGIN);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -48,8 +48,9 @@ export const Login = () => {
             setTokens(data.login.access_token, data.login.refresh_token);
             setId(data.login.user.id);
             showAlert({ type: 'success', message: 'Log in successfully' });
+            navigate('/users');
         }
-    }, [data, navigate, showAlert]);
+    }, [data]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -62,7 +63,6 @@ export const Login = () => {
                     },
                 },
             });
-            navigate('/users');
         } catch (err) {
             showAlert({ type: 'error', message: 'Login error' });
             console.error(err);
@@ -129,7 +129,7 @@ export const Login = () => {
             <Button
                 type="submit"
                 variant="contained"
-                disabled={!isFormValid || loading}
+                disabled={!isFormValid || loading || !!error}
                 sx={{
                     backgroundColor: 'rgb(198, 48, 49)',
                     ':hover': { backgroundColor: 'rgb(170, 40, 42)' },

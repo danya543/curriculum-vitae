@@ -11,6 +11,8 @@ export const GET_USER = gql`
       profile {
         first_name
         last_name
+        avatar
+        full_name
       }
       department {
         id
@@ -22,10 +24,6 @@ export const GET_USER = gql`
         name
       }
       position_name
-      cvs {
-        id
-        created_at
-      }
     }
   }
 `

@@ -1,4 +1,5 @@
-import { Visibility, VisibilityOff } from '@mui/icons-material'
+import { useMutation } from '@apollo/client';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -6,80 +7,88 @@ import {
     InputAdornment,
     TextField,
     Typography
-} from '@mui/material'
-import { type ChangeEvent, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+} from '@mui/material';
+import { type ChangeEvent, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { useAuth } from '@/hooks/useAuth'
-import { signup } from '@/services/authService'
-import { useAlert } from '@/ui/Alert/useAlert'
+import { SIGNUP } from '@/api/mutations/auth';
+import { setId, setTokens } from '@/components/constants';
+import { useAuth } from '@/hooks/useAuth';
+import { useAlert } from '@/ui/Alert/useAlert';
 
 export const Register = () => {
-    const [form, setForm] = useState({
-        email: '',
-        password: '',
-    })
-    const [errors, setErrors] = useState({
-        email: '',
-        password: '',
-    })
-    const [showPassword, setShowPassword] = useState(false)
-    const [loading, setLoading] = useState(false)
+    const navigate = useNavigate();
+    const { showAlert } = useAlert();
+
+    const [form, setForm] = useState({ email: '', password: '' });
+    const [showPassword, setShowPassword] = useState(false);
+    const [errors, setErrors] = useState({ email: '', password: '' });
 
     const { isAuthenticated } = useAuth()
-    const navigate = useNavigate()
-    const { showAlert } = useAlert()
-
     useEffect(() => {
         if (isAuthenticated) {
             navigate('/users')
         }
-    }, [isAuthenticated, navigate])
+    }, [])
 
-    const validate = () => {
-        const newErrors = { email: '', password: '' }
+    const [signup, { loading }] = useMutation(SIGNUP);
 
-        if (!form.email) {
-            newErrors.email = 'Email is required'
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-            newErrors.email = 'Email is invalid'
+    const validateField = (name: string, value: string) => {
+        let error = '';
+        if (name === 'email') {
+            if (!value) {
+                error = 'Email is required';
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                error = 'Invalid email format';
+            }
+        } else if (name === 'password') {
+            if (!value) {
+                error = 'Password is required';
+            } else if (value.length < 6) {
+                error = 'Password must be at least 6 characters';
+            }
         }
-
-        if (!form.password) {
-            newErrors.password = 'Password is required'
-        } else if (form.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters'
-        }
-
-        setErrors(newErrors)
-        return !newErrors.email && !newErrors.password
-    }
+        setErrors((prev) => ({ ...prev, [name]: error }));
+    };
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setForm(prev => ({ ...prev, [name]: value }))
-    }
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+        validateField(name, value);
+    };
 
-    const toggleShowPassword = () => setShowPassword(prev => !prev)
+    const isFormValid = !errors.email && !errors.password && form.email && form.password;
+
+    const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!validate()) return
+        e.preventDefault();
+        validateField('email', form.email);
+        validateField('password', form.password);
+        if (!isFormValid) return;
 
-        setLoading(true)
         try {
-            await signup(form)
-            showAlert({ type: 'success', message: 'Sign up successfully' })
-            navigate('/')
-        } catch (err) {
-            console.error(err)
-            showAlert({ type: 'error', message: 'Sign up error' })
-        } finally {
-            setLoading(false)
-        }
-    }
+            const { data } = await signup({
+                variables: {
+                    auth: {
+                        email: form.email,
+                        password: form.password
+                    }
+                }
+            })
 
-    const isSubmitDisabled = !form.email || !form.password || !!errors.email || !!errors.password || loading
+            const { access_token, refresh_token, user } = data.signup
+            if (access_token && user) {
+                setTokens(access_token, refresh_token)
+                setId(user.id)
+                showAlert({ type: 'success', message: 'Sign up successfully' })
+                navigate('/users')
+            }
+        } catch (err) {
+            console.error(err);
+            showAlert({ type: 'error', message: 'Sign up error' });
+        }
+    };
 
     return (
         <Box
@@ -110,7 +119,6 @@ export const Register = () => {
                 name="email"
                 value={form.email}
                 onChange={handleChange}
-                onBlur={validate}
                 variant="outlined"
                 fullWidth
                 required
@@ -123,7 +131,6 @@ export const Register = () => {
                 type={showPassword ? 'text' : 'password'}
                 value={form.password}
                 onChange={handleChange}
-                onBlur={validate}
                 variant="outlined"
                 fullWidth
                 required
@@ -143,7 +150,7 @@ export const Register = () => {
             <Button
                 type="submit"
                 variant="contained"
-                disabled={isSubmitDisabled}
+                disabled={!isFormValid || loading}
                 sx={{
                     backgroundColor: 'rgba(198, 48, 49, 1)',
                     ':hover': { backgroundColor: 'rgba(170, 40, 42, 1)' }
@@ -157,8 +164,8 @@ export const Register = () => {
                     component="a"
                     href="#"
                     onClick={(e) => {
-                        e.preventDefault()
-                        navigate('/users')
+                        e.preventDefault();
+                        navigate('/users');
                     }}
                     sx={{
                         color: 'rgb(118, 118, 118)',
@@ -171,5 +178,5 @@ export const Register = () => {
                 </Typography>
             </Box>
         </Box>
-    )
-}
+    );
+};

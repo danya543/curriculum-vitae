@@ -108,8 +108,12 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                             }}
                             onClick={handleMenuOpen}
                         >
-                            <Avatar sx={{ width: 32, height: 32, bgcolor: '#C63031' }}>
-                                {data.user.profile.first_name[0]}
+                            <Avatar
+                                src={data.user.profile.avatar || undefined}
+                                sx={{ width: 32, height: 32, bgcolor: '#C63031' }}
+                            >
+                                {!data.user.profile.avatar &&
+                                    (data.user.profile.first_name?.[0] || '')}
                             </Avatar>
                             {open && (
                                 <Typography variant="body2" noWrap>
