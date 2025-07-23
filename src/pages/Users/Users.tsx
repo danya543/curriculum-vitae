@@ -1,31 +1,92 @@
 import { useQuery } from '@apollo/client'
+import { ArrowDropDown, ArrowDropUp } from '@mui/icons-material'
 import { Box, List, ListItem, TextField, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
 
 import { GET_USERS } from '@/api/queries/getUsers'
 import type { GetUsersData } from '@/api/types'
+import { getId } from '@/components/constants'
 import { UserCard } from '@/components/UserCard/UserCard'
+
+type SortKey = 'firstName' | 'lastName' | 'email' | 'department' | 'position'
 
 export const UsersPage = () => {
     const { data, loading, error } = useQuery<GetUsersData>(GET_USERS)
     const [search, setSearch] = useState('')
+    const [sortKey, setSortKey] = useState<SortKey | null>(null)
+    const [sortAsc, setSortAsc] = useState(true)
+
+    const currentUserId = getId()
+
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortAsc(prev => !prev)
+        } else {
+            setSortKey(key)
+            setSortAsc(true)
+        }
+    }
 
     const filteredUsers = useMemo(() => {
         if (!data?.users) return []
-        return data.users.filter(user => {
+
+        const currentUser = data.users.find(u => u.id === currentUserId)
+        const otherUsers = data.users.filter(u => u.id !== currentUserId)
+
+        const lowerSearch = search.toLowerCase()
+        const filtered = otherUsers.filter(user => {
             const fullName = `${user.profile.first_name} ${user.profile.last_name}`.toLowerCase()
             return (
-                fullName.includes(search.toLowerCase()) ||
-                user.email.toLowerCase().includes(search.toLowerCase())
+                fullName.includes(lowerSearch) ||
+                user.email.toLowerCase().includes(lowerSearch)
             )
         })
-    }, [data, search])
+
+        if (sortKey) {
+            const getFieldValue = (user: GetUsersData['users'][0]): string | null => {
+                switch (sortKey) {
+                    case 'firstName': return user.profile.first_name || null
+                    case 'lastName': return user.profile.last_name || null
+                    case 'email': return user.email || null
+                    case 'department': return user.department_name || null
+                    case 'position': return user.position_name || null
+                    default: return null
+                }
+            }
+
+            filtered.sort((a, b) => {
+                const aVal = getFieldValue(a)
+                const bVal = getFieldValue(b)
+
+                if (!aVal && !bVal) return 0
+                if (!aVal) return 1
+                if (!bVal) return -1
+
+                return sortAsc
+                    ? aVal.localeCompare(bVal)
+                    : bVal.localeCompare(aVal)
+            })
+        }
+
+        const result = currentUser &&
+            (`${currentUser.profile.first_name} ${currentUser.profile.last_name}`.toLowerCase().includes(lowerSearch) ||
+                currentUser.email.toLowerCase().includes(lowerSearch))
+            ? [currentUser, ...filtered]
+            : filtered
+
+        return result
+    }, [data, search, sortKey, sortAsc, currentUserId])
 
     if (loading) return <Typography>Loading...</Typography>
     if (error) return <Typography color="error">Error: {error.message}</Typography>
 
+    const renderSortArrow = (key: SortKey) => {
+        if (sortKey !== key) return null
+        return sortAsc ? <ArrowDropUp fontSize="small" /> : <ArrowDropDown fontSize="small" />
+    }
+
     return (
-        <Box sx={{ p: 2, maxWidth: 600, mx: 'auto' }}>
+        <Box sx={{ width: '100%' }}>
             <TextField
                 label="Find by username or email"
                 variant="outlined"
@@ -38,20 +99,41 @@ export const UsersPage = () => {
             {filteredUsers.length === 0 ? (
                 <Typography>User not found.</Typography>
             ) : (
-                <List sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 0 }}>
-                    {filteredUsers.map(user => (
-                        <ListItem key={user.id} disablePadding>
-                            <UserCard
-                                id={user.id}
-                                firstName={user.profile.first_name}
-                                lastName={user.profile.last_name}
-                                email={user.email}
-                                departmentName={user.department_name}
-                                positionName={user.position_name}
-                            />
-                        </ListItem>
-                    ))}
-                </List>
+                <section>
+                    <Box sx={{
+                        borderBottom: '1px solid #515151',
+                        width: '100%', display: 'flex', justifyContent: 'space-between', px: 2, pb: 1, fontSize: '14px', fontWeight: 'bold'
+                    }}>
+                        <Box sx={{ width: '8%' }}></Box>
+                        <Box onClick={() => handleSort('firstName')} sx={{ cursor: 'pointer', width: '10%' }}>
+                            First Name {renderSortArrow('firstName')}
+                        </Box>
+                        <Box onClick={() => handleSort('lastName')} sx={{ cursor: 'pointer', width: '10%' }}>
+                            Last Name {renderSortArrow('lastName')}
+                        </Box>
+                        <Box onClick={() => handleSort('email')} sx={{ cursor: 'pointer', width: '20%' }}>
+                            Email {renderSortArrow('email')}
+                        </Box>
+                        <Box onClick={() => handleSort('department')} sx={{ cursor: 'pointer', width: '20%' }}>
+                            Department {renderSortArrow('department')}
+                        </Box>
+                        <Box onClick={() => handleSort('position')} sx={{ cursor: 'pointer', width: '14%' }}>
+                            Position {renderSortArrow('position')}
+                        </Box>
+                        <Box sx={{ width: '10%' }}></Box>
+                    </Box>
+
+                    <List sx={{ display: 'flex', flexDirection: 'column', p: 0 }}>
+                        {filteredUsers.map(user => (
+                            <ListItem key={user.id} disablePadding>
+                                <UserCard
+                                    user={user}
+                                    isCurrentUser={user.id === currentUserId}
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+                </section>
             )}
         </Box>
     )

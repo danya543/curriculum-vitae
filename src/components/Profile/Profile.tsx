@@ -8,15 +8,17 @@ import {
     Typography,
 } from "@mui/material";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { DELETE_AVATAR } from "@/api/mutations/deleteAvatar";
 import { useUpdateProfile } from "@/api/mutations/updProfile";
+import { UPDATE_USER } from "@/api/mutations/updUser";
 import { UPLOAD_AVATAR } from "@/api/mutations/uploadAvatar";
 import { getId } from "@/components/constants";
 import { Departments } from "@/components/Departments/Departments";
 import { Positions } from "@/components/Positions/Positions";
 import { useAlert } from "@/ui/Alert/useAlert";
+import { ICONS } from "@/ui/constants";
 
 type UserType = {
     id: string;
@@ -29,6 +31,14 @@ type UserType = {
     email: string;
     created_at: string;
     department_name?: string;
+    department: {
+        id: string;
+        name: string;
+    }
+    position: {
+        id: string;
+        name: string;
+    }
     position_name?: string;
     is_verified: boolean;
 };
@@ -38,12 +48,13 @@ type ProfileProps = {
 };
 
 export const Profile = ({ user }: ProfileProps) => {
-    const initialState = {
+    const [initialState, setInitialState] = useState({
         firstName: user.profile.first_name,
         lastName: user.profile.last_name,
-        department: user.department_name || "",
-        position: user.position_name || "",
-    };
+        department: user.department?.id || "",
+        position: user.position?.id || "",
+    });
+    const inputFileRef = useRef<HTMLInputElement | null>(null);
     const id = getId();
 
     const [form, setForm] = useState(initialState);
@@ -74,14 +85,56 @@ export const Profile = ({ user }: ProfileProps) => {
     const { updateProfile } = useUpdateProfile();
 
     const handleSave = async () => {
+        const nameChanged =
+            form.firstName !== initialState.firstName ||
+            form.lastName !== initialState.lastName;
+
+        const deptPosChanged =
+            form.department !== initialState.department ||
+            form.position !== initialState.position;
+
         try {
-            await updateProfile({
-                userId: +user.id,
-                first_name: form.firstName,
-                last_name: form.lastName,
-            });
+            if (nameChanged && deptPosChanged) {
+                await Promise.all([
+                    updateProfile({
+                        userId: +user.id,
+                        first_name: form.firstName || '',
+                        last_name: form.lastName || '',
+                    }),
+                    updateUserMutation({
+                        variables: {
+                            user: {
+                                id: +user.id,
+                                departmentId: form.department || '',
+                                positionId: form.position || '',
+                            },
+                        },
+                    }),
+                ]);
+            } else if (nameChanged) {
+                await updateProfile({
+                    userId: +user.id,
+                    first_name: form.firstName || '',
+                    last_name: form.lastName || '',
+                });
+            } else if (deptPosChanged) {
+                await updateUserMutation({
+                    variables: {
+                        user: {
+                            userId: +user.id,
+                            departmentId: form.department || '',
+                            positionId: form.position || '',
+                        },
+                    },
+                });
+            } else {
+                return;
+            }
+            setInitialState(form);
+            showAlert({ type: "success", message: "Successfully updated" });
         } catch (err) {
-            console.error(err)
+            showAlert({ type: "error", message: "Failed to update" });
+            console.error(err);
         }
     };
 
@@ -101,6 +154,8 @@ export const Profile = ({ user }: ProfileProps) => {
     const { showAlert } = useAlert();
     const [uploadAvatarMutation] = useMutation(UPLOAD_AVATAR);
 
+    const [updateUserMutation] = useMutation(UPDATE_USER);
+
     const [avatar, setAvatar] = useState(user.profile.avatar || "/avatar.png");
 
     const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,14 +164,14 @@ export const Profile = ({ user }: ProfileProps) => {
 
         const reader = new FileReader();
         reader.onloadend = async () => {
-            const base64 = (reader.result as string).split(',')[1];
+            const result = reader.result as string;
 
             try {
                 const { data } = await uploadAvatarMutation({
                     variables: {
                         avatar: {
-                            userId: +user.id,
-                            base64,
+                            userId: user.id,
+                            base64: result,
                             size: file.size,
                             type: file.type,
                         },
@@ -126,6 +181,9 @@ export const Profile = ({ user }: ProfileProps) => {
                 if (data?.uploadAvatar) {
                     setAvatar(data.uploadAvatar);
                     showAlert({ type: 'success', message: 'Avatar uploaded successfully' });
+                    if (inputFileRef.current) {
+                        inputFileRef.current.value = "";
+                    }
                 }
             } catch (err) {
                 showAlert({ type: 'error', message: 'Failed to upload avatar' });
@@ -137,7 +195,11 @@ export const Profile = ({ user }: ProfileProps) => {
     };
 
     return (
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{
+            mt: 2, display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+        }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
                     <Box sx={{ position: "relative", width: 80, height: 80 }}>
@@ -148,9 +210,8 @@ export const Profile = ({ user }: ProfileProps) => {
                         {avatar !== "/avatar.png" && (
                             <Button
                                 onClick={handleDeleteAvatar}
-                                variant="contained"
-                                color="error"
                                 sx={{
+                                    color: '#757575',
                                     minWidth: "unset",
                                     padding: "4px",
                                     position: "absolute",
@@ -162,21 +223,24 @@ export const Profile = ({ user }: ProfileProps) => {
                                     zIndex: 1
                                 }}
                             >
-                                <X size={16} />
+                                <X size={24} />
                             </Button>
                         )}
                     </Box>
 
                     {user.id === id && (
-                        <Button variant="outlined" component="label">
-                            Upload Avatar
-                            <input
-                                type="file"
-                                hidden
-                                accept="image/*"
-                                onChange={handleAvatarUpload}
-                            />
-                        </Button>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }} >
+                            <Button variant="text" component="label" sx={{ color: 'white' }}>
+                                <ICONS.Upload />Upload avatar image
+                                <input
+                                    type="file"
+                                    hidden
+                                    accept="image/*"
+                                    onChange={handleAvatarUpload}
+                                />
+                            </Button>
+                            <Typography variant="subtitle1">png, jpg or gif no more than 0.5MB</Typography>
+                        </Box>
                     )}
                 </Box>
             </Box>
@@ -185,7 +249,7 @@ export const Profile = ({ user }: ProfileProps) => {
             <Typography variant="subtitle1">Email: {email}</Typography>
             <Typography variant="subtitle1">Joined: {joinedAt}</Typography>
 
-            {id === user.id && <Box component="form" sx={{ mt: 4 }} noValidate autoComplete="off" onSubmit={e => { e.preventDefault(); handleSave(); }}>
+            <Box component="form" sx={{ mt: 4 }} noValidate autoComplete="off" onSubmit={e => { e.preventDefault(); handleSave(); }}>
                 <Grid container spacing={2}>
                     <Grid size={6}>
                         <TextField
@@ -193,6 +257,20 @@ export const Profile = ({ user }: ProfileProps) => {
                             label="First Name"
                             value={form.firstName}
                             onChange={handleChange("firstName")}
+                            disabled={id !== user.id}
+                            sx={{
+                                '& label.Mui-focused': {
+                                    color: 'rgb(198, 48, 49)',
+                                },
+                                '& .MuiInput-underline:after': {
+                                    borderBottomColor: 'rgb(198, 48, 49)',
+                                },
+                                '& .MuiOutlinedInput-root': {
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'rgb(198, 48, 49)',
+                                    },
+                                },
+                            }}
                         />
                     </Grid>
                     <Grid size={6}>
@@ -201,25 +279,40 @@ export const Profile = ({ user }: ProfileProps) => {
                             label="Last Name"
                             value={form.lastName}
                             onChange={handleChange("lastName")}
+                            disabled={id !== user.id}
+                            sx={{
+                                '& label.Mui-focused': {
+                                    color: 'rgb(198, 48, 49)',
+                                },
+                                '& .MuiInput-underline:after': {
+                                    borderBottomColor: 'rgb(198, 48, 49)',
+                                },
+                                '& .MuiOutlinedInput-root': {
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'rgb(198, 48, 49)',
+                                    },
+                                },
+                            }}
                         />
                     </Grid>
                     <Grid size={6}>
-                        <Departments department={form.department} onChange={handleDepartmentChange} />
+                        <Departments department={form.department} onChange={handleDepartmentChange} disabled={id !== user.id} />
                     </Grid>
                     <Grid size={6}>
-                        <Positions position={form.position} onChange={handlePositionChange} />
+                        <Positions position={form.position} onChange={handlePositionChange} disabled={id !== user.id} />
                     </Grid>
                     {id === user.id && <Grid size={6}>
                         <Button
                             type="submit"
-                            variant="contained"
+                            variant="text"
+                            sx={{ color: 'rgb(198, 48, 49)' }}
                             disabled={!isChanged}
                         >
                             Save Changes
                         </Button>
                     </Grid>}
                 </Grid>
-            </Box>}
-        </Box>
+            </Box>
+        </Box >
     );
 };

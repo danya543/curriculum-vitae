@@ -10,6 +10,7 @@ import { ForgotPassword } from '@/pages/ForgotPassword/ForgotPassword';
 import { Languages } from '@/pages/Languages/Languages';
 import { MainPage } from '@/pages/Main/Main';
 import { MainLayout } from '@/pages/MainLayout/MainLayout';
+import { ResetPassword } from '@/pages/ResetPassword/ResetPassword';
 import { Skills } from '@/pages/Skills/Skills';
 import { UserPage } from '@/pages/User/User';
 import { UsersPage } from '@/pages/Users/Users';
@@ -102,5 +103,13 @@ export const router = createBrowserRouter([
     {
         path: '/forgot-password',
         element: <ForgotPassword />,
+    },
+    {
+        path: '/reset-password',
+        element: (
+            <Suspense fallback={'Loader'}>
+                <ResetPassword />
+            </Suspense>
+        ),
     },
 ])

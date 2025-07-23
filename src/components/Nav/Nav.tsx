@@ -25,7 +25,7 @@ export const BreadcrumbsNav = ({ breadcrumbs }: BreadcrumbsNavProps) => {
                         {item.label}
                     </Link>
                 ) : (
-                    <Typography key={index} color="text.primary">
+                    <Typography key={index} sx={{ color: 'rgb(198, 48, 49)' }} >
                         {item.label}
                     </Typography>
                 )

@@ -9,16 +9,8 @@ export interface User {
     profile: {
         first_name: string
         last_name: string
-        phone?: string
-        address?: string
-    }
-    department?: {
-        id: string
-        name: string
-    }
-    position?: {
-        id: string
-        name: string
+        full_name: string
+        avatar: string
     }
     cvs: {
         id: string

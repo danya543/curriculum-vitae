@@ -113,11 +113,11 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                                 sx={{ width: 32, height: 32, bgcolor: '#C63031' }}
                             >
                                 {!data.user.profile.avatar &&
-                                    (data.user.profile.first_name?.[0] || '')}
+                                    (data.user.profile.first_name?.[0] || data.user.email[0])}
                             </Avatar>
                             {open && (
                                 <Typography variant="body2" noWrap>
-                                    {data.user.profile.first_name} {data.user.profile.last_name}
+                                    {data.user.profile.full_name || data.user.email}
                                 </Typography>
                             )}
                         </Box>

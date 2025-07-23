@@ -25,6 +25,7 @@ export const ForgotPassword = () => {
         e.preventDefault()
         try {
             await forgotPassword(email)
+            setEmail('');
         } catch (err) {
             console.error(err)
         }

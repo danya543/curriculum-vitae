@@ -62,7 +62,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
 
                 return fromPromise(
                     tokenClient
-                        .mutate({ mutation: UPDATE_TOKEN }) // 👈 mutation, не query
+                        .mutate({ mutation: UPDATE_TOKEN })
                         .then(response => {
                             const tokens = response.data?.updateToken
                             if (!tokens?.access_token || !tokens?.refresh_token) {

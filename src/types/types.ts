@@ -1,3 +1,4 @@
+import type { User } from "@/api/types";
 import type { Mastery } from "@/components/CVTabs/constants";
 
 type LanguageInput = {
@@ -127,11 +128,13 @@ export interface DepartmentsData {
 export interface DepartmentsProps {
     department: string;
     onChange: (value: string) => void;
+    disabled: boolean;
 }
 
 export interface PositionsProps {
     position: string;
     onChange: (value: string) => void;
+    disabled: boolean;
 }
 
 export interface SideMenuProps {
@@ -140,13 +143,8 @@ export interface SideMenuProps {
 }
 
 export interface UserCardProps {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    departmentName?: string
-    positionName?: string
-    avatarUrl?: string
+    user: User,
+    isCurrentUser: boolean
 }
 
 

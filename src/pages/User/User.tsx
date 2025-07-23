@@ -36,11 +36,24 @@ export const UserPage = () => {
         <Container sx={{ mt: 2, height: '90vh', display: 'flex', flexDirection: 'column' }}>
             <BreadcrumbsNav breadcrumbs={[
                 { label: "Employees", to: "/users" },
-                { label: `${user.profile.first_name} ${user.profile.last_name}` },
+                { label: `${user.profile.full_name || user.email}` },
             ]} />
 
             <Box sx={{ mt: 3, flexShrink: 0 }}>
-                <Tabs value={tab} onChange={handleTabChange}>
+                <Tabs
+                    value={tab}
+                    onChange={handleTabChange}
+                    sx={{
+                        '& .MuiTabs-indicator': {
+                            backgroundColor: 'rgb(198, 48, 49)',
+                        },
+                        '& .MuiTab-root': {
+                            '&.Mui-selected': {
+                                color: 'rgb(198, 48, 49)',
+                            },
+                        },
+                    }}
+                >
                     <Tab label="Profile" />
                     <Tab label="Skills" />
                     <Tab label="Languages" />
