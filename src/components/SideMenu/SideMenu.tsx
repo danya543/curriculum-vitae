@@ -110,7 +110,7 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                         >
                             <Avatar
                                 src={data.user.profile.avatar || undefined}
-                                sx={{ width: 32, height: 32, bgcolor: '#C63031' }}
+                                sx={{ width: 32, height: 32, bgcolor: data.user.profile.avatar ? 'transparent' : '#C63031', }}
                             >
                                 {!data.user.profile.avatar &&
                                     (data.user.profile.first_name?.[0] || data.user.email[0])}

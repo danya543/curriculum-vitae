@@ -38,7 +38,20 @@ export const Departments = ({ department, onChange, disabled }: DepartmentsProps
                 value={data?.departments.find(dep => department === dep.id)?.name}
                 label="Department"
                 onChange={handleChange}
-                disabled={disabled}>
+                disabled={disabled}
+                MenuProps={{
+                    PaperProps: {
+                        sx: {
+                            '& .MuiMenuItem-root.Mui-selected': {
+                                backgroundColor: 'rgba(198, 48, 49, 0.1)',
+                                color: 'rgb(198, 48, 49)',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(198, 48, 49, 0.2)',
+                                },
+                            },
+                        },
+                    },
+                }}>
                 {data?.departments.map(dep => (
                     <MenuItem key={dep.id} value={dep.name}>
                         {dep.name}

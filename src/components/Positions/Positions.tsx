@@ -18,7 +18,9 @@ export const Positions = ({ position, onChange, disabled }: PositionsProps) => {
     if (error) return <>error loading positions</>;
 
     const handleChange = (event: SelectChangeEvent) => {
-        onChange(event.target.value);
+        if (data) {
+            onChange(data.positions.filter(pos => pos.name === event.target.value)[0].id);
+        }
     };
 
     return (
@@ -31,7 +33,19 @@ export const Positions = ({ position, onChange, disabled }: PositionsProps) => {
             },
         }}>
             <InputLabel>Position</InputLabel>
-            <Select value={position} label="Position" onChange={handleChange} disabled={disabled}>
+            <Select value={data?.positions.find(pos => position === pos.id)?.name} label="Position" onChange={handleChange} disabled={disabled} MenuProps={{
+                PaperProps: {
+                    sx: {
+                        '& .MuiMenuItem-root.Mui-selected': {
+                            backgroundColor: 'rgba(198, 48, 49, 0.1)',
+                            color: 'rgb(198, 48, 49)',
+                            '&:hover': {
+                                backgroundColor: 'rgba(198, 48, 49, 0.2)',
+                            },
+                        },
+                    },
+                },
+            }}>
                 {data?.positions.map(pos => (
                     <MenuItem key={pos.id} value={pos.name}>
                         {pos.name}

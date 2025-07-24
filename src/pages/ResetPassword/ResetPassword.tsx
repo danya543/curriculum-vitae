@@ -1,8 +1,10 @@
 import { gql, useMutation } from '@apollo/client';
-import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Box, Button, FormControl, TextField } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { noAuthClient } from '@/api/noAuthClient';
+import { useAlert } from '@/ui/Alert/useAlert';
 
 const RESET_PASSWORD = gql`
   mutation ResetPassword($auth: ResetPasswordInput!) {
@@ -35,17 +37,77 @@ export const ResetPassword = () => {
         });
     };
 
+    const { showAlert } = useAlert();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (error) {
+            showAlert({ type: 'error', message: 'Failed to reset password' });
+        }
+        if (data) {
+            showAlert({ type: 'success', message: 'Password successfully changed!' });
+            setTimeout(() => navigate('/auth/login'), 2000);
+        }
+    }, [error, data]);
+
     return (
-        <form onSubmit={handleSubmit}>
-            <input
-                type="password"
-                placeholder="New password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-            />
-            <button type="submit" disabled={loading}>Reset</button>
-            {error && <div>Error: {error.message}</div>}
-            {data && <div>Password reset successful</div>}
-        </form>
+        <Box component={'section'}
+            sx={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}>
+            <Box
+                component="form"
+                onSubmit={handleSubmit}
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 2,
+                    minWidth: 400,
+                    p: 3,
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    backgroundColor: 'background.paper',
+                }}
+            >
+                <h1>Enter new password</h1>
+                <FormControl fullWidth>
+                    <TextField
+                        type="password"
+                        label="New password"
+                        variant="outlined"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        required
+                        sx={{
+                            '& label.Mui-focused': {
+                                color: 'rgb(198, 48, 49)',
+                            },
+                            '& .MuiInput-underline:after': {
+                                borderBottomColor: 'rgb(198, 48, 49)',
+                            },
+                            '& .MuiOutlinedInput-root': {
+                                '&.Mui-focused fieldset': {
+                                    borderColor: 'rgb(198, 48, 49)',
+                                },
+                            },
+                        }}
+                    />
+                </FormControl>
+                <Button
+                    type="submit"
+                    sx={{ color: 'rgb(198, 48, 49)', cursor: 'pointer', '&:hover': { background: '#2e2e2e' }, }}
+                    disabled={loading || !newPassword}
+                >
+                    {loading ? 'Reset...' : 'Reset password'}
+                </Button>
+            </Box>
+        </Box>
     );
 };

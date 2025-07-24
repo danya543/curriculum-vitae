@@ -212,12 +212,13 @@ export const Languages = () => {
             </List>
 
             <Box mt={2} display="flex" justifyContent='space-between' gap={2}>
-                <Button variant="contained" onClick={handleOpenAddDialog}>Add Language</Button>
+                <Button sx={{
+                    color: 'rgb(198, 48, 49)'
+                }} onClick={handleOpenAddDialog}>Add Language</Button>
 
                 {profileLanguages.length > 0 && (
                     <Box display="flex" gap={2}>
                         <Button
-                            variant="outlined"
                             color="error"
                             onClick={deleting ? handleDelete : handleToggleDeleteMode}
                             disabled={deleting && selectedForDelete.length === 0}
@@ -237,7 +238,16 @@ export const Languages = () => {
             <Dialog open={dialogOpen} onClose={handleDialogClose} fullWidth maxWidth="sm">
                 <DialogTitle>{editingLanguageName ? "Edit Language" : "Add Language"}</DialogTitle>
                 <DialogContent>
-                    <FormControl fullWidth sx={{ mt: 2 }}>
+                    <FormControl fullWidth sx={{
+                        mt: 2,
+                        '& .MuiInputLabel-root.Mui-focused': {
+                            color: 'rgb(198, 48, 49)',
+                        },
+                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'rgb(198, 48, 49)',
+                        },
+                    }
+                    }>
                         <InputLabel id="select-language-label">Language</InputLabel>
                         <Select
                             labelId="select-language-label"
@@ -254,13 +264,34 @@ export const Languages = () => {
                         </Select>
                     </FormControl>
 
-                    <FormControl fullWidth sx={{ mt: 2 }}>
+                    <FormControl fullWidth sx={{
+                        mt: 2,
+                        '& .MuiInputLabel-root.Mui-focused': {
+                            color: 'rgb(198, 48, 49)',
+                        },
+                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'rgb(198, 48, 49)',
+                        },
+                    }}>
                         <InputLabel id="select-proficiency-label">Proficiency</InputLabel>
                         <Select
                             labelId="select-proficiency-label"
                             value={selectedProficiency}
                             label="Proficiency"
                             onChange={(e) => setSelectedProficiency(e.target.value)}
+                            MenuProps={{
+                                PaperProps: {
+                                    sx: {
+                                        '& .MuiMenuItem-root.Mui-selected': {
+                                            backgroundColor: 'rgba(198, 48, 49, 0.1)',
+                                            color: 'rgb(198, 48, 49)',
+                                            '&:hover': {
+                                                backgroundColor: 'rgba(198, 48, 49, 0.2)',
+                                            },
+                                        },
+                                    },
+                                },
+                            }}
                         >
                             {profsData.__type.enumValues.map((p) => (
                                 <MenuItem key={p.name} value={p.name}>
@@ -271,9 +302,10 @@ export const Languages = () => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleDialogClose}>Cancel</Button>
+                    <Button sx={{ color: 'rgba(198, 48, 49,0.8)', '&:hover': { background: 'rgba(198, 48, 49,0.2)' }, }} onClick={handleDialogClose}>Cancel</Button>
                     <Button
-                        variant="contained"
+                        variant="text"
+                        sx={{ color: 'rgb(198, 48, 49)', '&:hover': { background: 'rgba(198, 48, 49,0.3)' } }}
                         onClick={handleSave}
                         disabled={!selectedLangId || !selectedProficiency}
                     >
