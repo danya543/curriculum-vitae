@@ -58,7 +58,6 @@ export const ForgotPassword = () => {
                         component="form"
                         onSubmit={handleSubmit}
                         noValidate
-                        autoComplete="off"
                         sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
                     >
                         <Typography variant="h5" component="h1" textAlign="center">

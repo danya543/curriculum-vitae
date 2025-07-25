@@ -84,7 +84,6 @@ export const Login = () => {
             }}
             onSubmit={handleSubmit}
             noValidate
-            autoComplete="off"
         >
             <Typography variant="h5" component="h3" textAlign="center">
                 Welcome back

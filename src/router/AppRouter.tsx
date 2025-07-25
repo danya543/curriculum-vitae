@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 import { CVs } from '@/components/CVs/CVs';
 import { Login } from '@/pages/Auth/Login';
@@ -8,7 +8,6 @@ import { AuthLayout } from '@/pages/AuthLayout/AuthLayout';
 import { CVPage } from '@/pages/CV/CV';
 import { ForgotPassword } from '@/pages/ForgotPassword/ForgotPassword';
 import { Languages } from '@/pages/Languages/Languages';
-import { MainPage } from '@/pages/Main/Main';
 import { MainLayout } from '@/pages/MainLayout/MainLayout';
 import { ResetPassword } from '@/pages/ResetPassword/ResetPassword';
 import { Skills } from '@/pages/Skills/Skills';
@@ -21,12 +20,8 @@ export const router = createBrowserRouter([
         element: <MainLayout />,
         children: [
             {
-                path: '',
-                element: (
-                    <Suspense fallback={'Loader'}>
-                        <MainPage />
-                    </Suspense>
-                ),
+                index: true,
+                element: <Navigate to="auth/login" replace />,
             },
             {
                 path: 'users',

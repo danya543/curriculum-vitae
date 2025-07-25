@@ -105,7 +105,6 @@ export const Register = () => {
             }}
             onSubmit={handleSubmit}
             noValidate
-            autoComplete="off"
         >
             <Typography variant="h5" component="h3" textAlign="center">
                 Register now
