@@ -14,10 +14,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { DELETE_USER } from '@/api/mutations/deleteUser'
+import { useAuth } from '@/hooks/useAuth'
 import type { UserCardProps } from '@/types/types'
 import { useAlert } from '@/ui/Alert/useAlert'
-
-import { getId } from '../constants'
 
 export const UserCard: FC<UserCardProps> = ({
     user,
@@ -26,6 +25,7 @@ export const UserCard: FC<UserCardProps> = ({
     const navigate = useNavigate()
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
     const { showAlert } = useAlert();
+    const { id } = useAuth()
 
     const [deleteUserMutation] = useMutation(DELETE_USER);
 
@@ -45,7 +45,7 @@ export const UserCard: FC<UserCardProps> = ({
     const handleDeleteClick = async () => {
         try {
             await deleteUserMutation({
-                variables: { id: getId() }
+                variables: { id }
             });
             showAlert({ type: 'success', message: 'User deleted successfully' })
             handleMenuClose()

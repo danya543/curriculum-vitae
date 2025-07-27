@@ -31,8 +31,7 @@ export const Departments = ({ department, onChange, disabled }: DepartmentsProps
                 '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
                     borderColor: 'rgb(198, 48, 49)',
                 },
-            }
-            }>
+            }}>
             <InputLabel>Department</InputLabel>
             <Select
                 value={data?.departments.find(dep => department === dep.id)?.name}

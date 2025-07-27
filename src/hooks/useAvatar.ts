@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 
 import { DELETE_AVATAR } from '@/api/mutations/deleteAvatar';
 import { UPLOAD_AVATAR } from '@/api/mutations/uploadAvatar';
+import { GET_USER } from '@/api/queries/getUser';
 import { useAlert } from '@/ui/Alert/useAlert';
 
 export const useAvatar = (userId: string, initialAvatar?: string) => {
@@ -17,6 +18,19 @@ export const useAvatar = (userId: string, initialAvatar?: string) => {
         try {
             await deleteAvatarMutation({
                 variables: { avatar: { userId: +userId } },
+                update: (cache) => {
+                    cache.modify({
+                        id: cache.identify({ __typename: 'User', id: userId }),
+                        fields: {
+                            profile(existingProfile = {}) {
+                                return {
+                                    ...existingProfile,
+                                    avatar: null,
+                                };
+                            },
+                        },
+                    });
+                },
             });
             setAvatar('/avatar.png');
             showAlert({ type: 'success', message: 'Avatar deleted successfully' });
@@ -43,16 +57,33 @@ export const useAvatar = (userId: string, initialAvatar?: string) => {
                             type: file.type,
                         },
                     },
+                    update: (cache, { data }) => {
+                        cache.modify({
+                            id: cache.identify({ __typename: 'User', id: userId }),
+                            fields: {
+                                profile(existingProfile = {}) {
+                                    return {
+                                        ...existingProfile,
+                                        avatar: data?.uploadAvatar,
+                                    };
+                                },
+                            },
+                        });
+                    },
+                    refetchQueries: [{ query: GET_USER, variables: { userId: +userId } }],
                 });
 
                 if (data?.uploadAvatar) {
                     setAvatar(data.uploadAvatar);
                     showAlert({ type: 'success', message: 'Avatar uploaded successfully' });
-                    if (inputFileRef.current) inputFileRef.current.value = '';
+                } else {
+                    showAlert({ type: 'error', message: 'Failed to upload avatar' });
                 }
             } catch (err) {
                 console.error(err);
                 showAlert({ type: 'error', message: 'Failed to upload avatar' });
+            } finally {
+                if (inputFileRef.current) inputFileRef.current.value = '';
             }
         };
 

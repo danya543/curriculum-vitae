@@ -25,7 +25,7 @@ import { UPDATE_PROFILE_LANGUAGE } from "@/api/mutations/updProfileLang";
 import { GET_PROFICIENCY_LEVELS } from "@/api/queries/getLangProfieciency";
 import { GET_LANGUAGES } from "@/api/queries/getLanguages";
 import { GET_PROFILE_LANGUAGES } from "@/api/queries/getProfileLangs";
-import { getId } from "@/components/constants";
+import { useAuth } from "@/hooks/useAuth";
 
 type Language = {
     id: string;
@@ -55,7 +55,7 @@ type ProfileLanguagesVars = {
 };
 
 export const Languages = () => {
-    const id = getId();
+    const { id } = useAuth();
 
     const { data: langsData, loading: langsLoading } = useQuery<{ languages: Language[] }>(GET_LANGUAGES);
     const { data: profsData, loading: profsLoading } = useQuery<{ __type: { enumValues: LanguageProficiency[] } }>(

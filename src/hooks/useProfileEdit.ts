@@ -1,8 +1,10 @@
 import { useMutation } from '@apollo/client';
 import { useMemo, useState } from 'react';
 
-import { useUpdateProfile } from '@/api/mutations/updProfile';
+import { client } from '@/api/client';
+import { UPDATE_PROFILE } from '@/api/mutations/updProfile';
 import { UPDATE_USER } from '@/api/mutations/updUser';
+import { GET_USER } from '@/api/queries/getUser';
 import { useAlert } from '@/ui/Alert/useAlert';
 
 type UserForEdit = {
@@ -14,7 +16,7 @@ type UserForEdit = {
 
 export const useProfileEdit = (user: UserForEdit) => {
     const [updateUserMutation] = useMutation(UPDATE_USER);
-    const { updateProfile } = useUpdateProfile();
+    const [updateProfile] = useMutation(UPDATE_PROFILE);
     const { showAlert } = useAlert();
 
     const [initialState, setInitialState] = useState({
@@ -57,35 +59,82 @@ export const useProfileEdit = (user: UserForEdit) => {
             if (nameChanged && deptPosChanged) {
                 await Promise.all([
                     updateProfile({
-                        userId: +user.id,
-                        first_name: form.firstName || '',
-                        last_name: form.lastName || '',
+                        variables: {
+                            profile: {
+                                userId: +user.id,
+                                first_name: form.firstName || '',
+                                last_name: form.lastName || '',
+                            }
+                        },
+                        update: (cache) => {
+                            cache.modify({
+                                id: cache.identify({ __typename: 'User', id: user.id }),
+                                fields: {
+                                    profile(existingProfile = {}) {
+                                        const updatedFirst = form.firstName;
+                                        const updatedLast = form.lastName;
+                                        return {
+                                            ...existingProfile,
+                                            first_name: updatedFirst,
+                                            last_name: updatedLast,
+                                            full_name: `${updatedFirst} ${updatedLast}`,
+                                        };
+                                    },
+                                },
+                            });
+                        },
                     }),
                     updateUserMutation({
                         variables: {
                             user: {
-                                userId: +user.id, // важное исправление: userId, а не id
-                                departmentId: form.department || null,
-                                positionId: form.position || null,
+                                userId: +user.id,
+                                departmentId: form.department || '',
+                                positionId: form.position || '',
                             },
                         },
+                        refetchQueries: [{ query: GET_USER, variables: { userId: user.id } }],
                     }),
                 ]);
             } else if (nameChanged) {
                 await updateProfile({
-                    userId: +user.id,
-                    first_name: form.firstName || '',
-                    last_name: form.lastName || '',
+                    variables: {
+                        profile: {
+                            userId: +user.id,
+                            first_name: form.firstName || '',
+                            last_name: form.lastName || '',
+                        }
+                    },
+                    update: (cache) => {
+                        cache.modify({
+                            id: cache.identify({ __typename: 'User', id: user.id }),
+                            fields: {
+                                profile(existingProfile = {}) {
+                                    const updatedFirst = form.firstName;
+                                    const updatedLast = form.lastName;
+                                    return {
+                                        ...existingProfile,
+                                        first_name: updatedFirst,
+                                        last_name: updatedLast,
+                                        full_name: `${updatedFirst} ${updatedLast}`,
+                                    };
+                                },
+                            },
+                        });
+                    },
+                });
+                await client.refetchQueries({
+                    include: [GET_USER],
                 });
             } else if (deptPosChanged) {
                 await updateUserMutation({
                     variables: {
                         user: {
                             userId: +user.id,
-                            departmentId: form.department || null,
-                            positionId: form.position || null,
+                            departmentId: form.department || '',
+                            positionId: form.position || '',
                         },
                     },
+                    refetchQueries: [{ query: GET_USER, variables: { userId: user.id } }],
                 });
             } else {
                 return;

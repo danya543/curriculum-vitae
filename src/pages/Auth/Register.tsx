@@ -12,7 +12,7 @@ import { type ChangeEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { SIGNUP } from '@/api/mutations/auth';
-import { setId, setTokens } from '@/components/constants';
+import { setInfo, setTokens } from '@/components/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useAlert } from '@/ui/Alert/useAlert';
 
@@ -29,6 +29,7 @@ export const Register = () => {
         if (isAuthenticated) {
             navigate('/users')
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const [signup, { loading }] = useMutation(SIGNUP);
@@ -80,7 +81,7 @@ export const Register = () => {
             const { access_token, refresh_token, user } = data.signup
             if (access_token && user) {
                 setTokens(access_token, refresh_token)
-                setId(user.id)
+                setInfo(user.id, user.role)
                 showAlert({ type: 'success', message: 'Sign up successfully' })
                 navigate('/users')
             }

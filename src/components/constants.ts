@@ -1,15 +1,10 @@
-export const getAccessToken = () => { return localStorage.getItem('access_token') }
-export const getRefreshToken = () => { return localStorage.getItem('refresh_token') }
-export const getId = () => {
-    return localStorage.getItem('user_id') ?? null
-}
-
 export const setTokens = (access: string, refresh: string): void => {
     localStorage.setItem('access_token', access)
     localStorage.setItem('refresh_token', refresh)
 }
-export const setId = (id: string) => {
+export const setInfo = (id: string, role: string) => {
     localStorage.setItem('user_id', id)
+    localStorage.setItem('user_role', role)
 }
 
 export const removeTokens = () => {

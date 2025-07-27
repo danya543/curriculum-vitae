@@ -10,20 +10,20 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { GET_CVS } from "@/api/queries/getCVs";
-import { getId } from "@/components/constants";
 import { CvCard } from "@/components/CVCard/CVCard";
+import { useAuth } from "@/hooks/useAuth";
 import type { Cv, CvsData } from "@/types/types";
 import { useAlert } from "@/ui/Alert/useAlert";
 
 import { AddCV } from "./AddCV";
 
 export const CVs = () => {
-    const userId = getId();
+    const { id } = useAuth();
     const navigate = useNavigate();
     const { showAlert } = useAlert();
 
     const { data, loading, error } = useQuery<CvsData>(GET_CVS, {
-        variables: { userId },
+        variables: { id },
     });
 
     const [search, setSearch] = useState("");

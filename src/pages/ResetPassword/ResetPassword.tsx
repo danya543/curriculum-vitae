@@ -48,6 +48,7 @@ export const ResetPassword = () => {
             showAlert({ type: 'success', message: 'Password successfully changed!' });
             setTimeout(() => navigate('/auth/login'), 2000);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [error, data]);
 
     return (

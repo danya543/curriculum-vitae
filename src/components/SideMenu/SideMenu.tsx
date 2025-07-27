@@ -1,12 +1,13 @@
 import { useQuery } from "@apollo/client"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import { Avatar, Box, IconButton, Menu, MenuItem, Typography, useTheme } from "@mui/material"
-import { useState } from "react"
+import { alpha, Avatar, Box, IconButton, Menu, MenuItem, Typography, useTheme } from "@mui/material"
+import { type MouseEvent, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 import { GET_USER } from "@/api/queries/getUser"
-import { getId, removeTokens } from "@/components/constants"
+import { removeTokens } from "@/components/constants"
+import { useAuth } from "@/hooks/useAuth"
 import type { SideMenuProps } from "@/types/types"
 import { ICONS } from "@/ui/constants"
 
@@ -14,30 +15,30 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
     const location = useLocation()
     const navigate = useNavigate()
     const theme = useTheme()
+    const { id } = useAuth()
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
     const { data, loading } = useQuery(GET_USER, {
-        variables: { userId: getId() },
+        variables: { userId: id },
+        skip: !id,
     })
 
     const menuItems = [
-        { label: 'Employees', Icon: ICONS.Employees, link: '/users', active: location.pathname.includes('/users') },
-        { label: 'Skills', Icon: ICONS.Skills, link: '/skills', active: location.pathname.includes('/skills') },
-        { label: 'Languages', Icon: ICONS.Language, link: '/languages', active: location.pathname.includes('/langs') },
-        { label: 'CVs', Icon: ICONS.CVs, link: '/cvs', active: location.pathname.includes('/cvs') },
+        { label: 'Employees', Icon: ICONS.Employees, link: '/users' },
+        { label: 'Skills', Icon: ICONS.Skills, link: '/skills' },
+        { label: 'Languages', Icon: ICONS.Language, link: '/languages' },
+        { label: 'CVs', Icon: ICONS.CVs, link: '/cvs' },
     ]
 
-    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    const handleMenuOpen = (event: MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget)
     }
 
-    const handleMenuClose = () => {
-        setAnchorEl(null)
-    }
+    const handleMenuClose = () => setAnchorEl(null)
 
     const handleLogout = () => {
-        removeTokens();
+        removeTokens()
         navigate('/auth/login')
     }
 
@@ -62,34 +63,43 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                 }}
             >
                 <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
-                    {menuItems.map(({ label, Icon, link, active }) => (
-                        <Box
-                            onClick={() => navigate(link)}
-                            key={label}
-                            component="li"
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: open ? 1 : 0,
-                                p: 1,
-                                borderRadius: 7,
-                                cursor: 'pointer',
-                                transition: 'background 0.2s',
-                                '&:hover': { bgcolor: 'action.hover' },
-                                justifyContent: open ? 'flex-start' : 'center',
-                            }}
-                        >
-                            <Icon
-                                style={{
-                                    width: 24,
-                                    height: 24,
-                                    transition: 'color 0.3s',
-                                    color: active ? theme.palette.text.primary : theme.palette.text.secondary,
+                    {menuItems.map(({ label, Icon, link }) => {
+                        const active = location.pathname.startsWith(link)
+                        return (
+                            <Box
+                                key={label}
+                                onClick={() => navigate(link)}
+                                component="li"
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: open ? 1 : 0,
+                                    p: 1,
+                                    borderRadius: 7,
+                                    cursor: 'pointer',
+                                    transition: 'background 0.2s',
+                                    '&:hover': { bgcolor: 'action.hover' },
+                                    justifyContent: open ? 'flex-start' : 'center',
                                 }}
-                            />
-                            {open && <Typography>{label}</Typography>}
-                        </Box>
-                    ))}
+                            >
+                                <Icon
+                                    style={{
+                                        width: 24,
+                                        height: 24,
+                                        transition: 'color 0.3s',
+                                        color: active
+                                            ? alpha(theme.palette.text.secondary, 1)
+                                            : alpha(theme.palette.text.secondary, 0.6),
+                                    }}
+                                />
+                                {open && <Typography sx={{
+                                    color: active
+                                        ? alpha(theme.palette.text.secondary, 1)
+                                        : alpha(theme.palette.text.secondary, 0.6),
+                                }} >{label}</Typography>}
+                            </Box>
+                        )
+                    })}
                 </Box>
 
                 <Box sx={{ textAlign: 'center' }}>
@@ -110,14 +120,14 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                         >
                             <Avatar
                                 src={data.user.profile.avatar || undefined}
-                                sx={{ width: 32, height: 32, bgcolor: data.user.profile.avatar ? 'transparent' : '#C63031', }}
+                                sx={{ width: 32, height: 32, bgcolor: data.user.profile.avatar ? 'transparent' : '#C63031' }}
                             >
                                 {!data.user.profile.avatar &&
                                     (data.user.profile.first_name?.[0] || data.user.email[0])}
                             </Avatar>
                             {open && (
                                 <Typography variant="body2" noWrap>
-                                    {data.user.profile.full_name || data.user.email}
+                                    {data.user.profile.first_name ? `${data.user.profile.first_name} ${data.user.profile.last_name}` : data.user.email}
                                 </Typography>
                             )}
                         </Box>
@@ -138,9 +148,16 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-                <MenuItem onClick={() => { handleMenuClose(); navigate(`/users/${data.user.id}`) }}>
-                    Profile
-                </MenuItem>
+                {data?.user && (
+                    <MenuItem
+                        onClick={() => {
+                            handleMenuClose()
+                            navigate(`/users/${data.user.id}`)
+                        }}
+                    >
+                        Profile
+                    </MenuItem>
+                )}
                 <MenuItem onClick={() => { handleMenuClose(); handleLogout() }}>
                     Log out
                 </MenuItem>

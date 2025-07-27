@@ -1,4 +1,4 @@
-import { useLazyQuery } from '@apollo/client';
+import { ApolloError, useLazyQuery } from '@apollo/client';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
     Box,
@@ -12,9 +12,23 @@ import { type ChangeEvent, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { LOGIN } from '@/api/mutations/auth';
-import { setId, setTokens } from '@/components/constants';
+import { setInfo, setTokens } from '@/components/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useAlert } from '@/ui/Alert/useAlert';
+
+type LoginForm = { email: string; password: string };
+
+const getApolloErrorMessage = (e: ApolloError) => {
+    const gqlMsg = e.graphQLErrors?.[0]?.message;
+    if (gqlMsg) return gqlMsg;
+
+    const networkMsg =
+        // @ts-expect-error - networkError 
+        e.networkError?.result?.errors?.[0]?.message ||
+        e.networkError?.message;
+
+    return networkMsg || e.message || 'Unknown error';
+};
 
 export const Login = () => {
     const { isAuthenticated } = useAuth();
@@ -25,48 +39,61 @@ export const Login = () => {
         if (isAuthenticated) {
             navigate('/users');
         }
-    }, [])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    const [form, setForm] = useState({ email: '', password: '' });
+    const [form, setForm] = useState<LoginForm>({ email: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
 
-    const [loginQuery, { loading, data, error }] = useLazyQuery(LOGIN);
+    const [submittedSnapshot, setSubmittedSnapshot] = useState<LoginForm | null>(null);
+
+    const [loginQuery, { loading }] = useLazyQuery(LOGIN, {
+        fetchPolicy: 'no-cache',
+        onCompleted: ({ login }) => {
+            if (login?.access_token && login?.refresh_token) {
+                setTokens(login.access_token, login.refresh_token);
+                setInfo(login.user.id, login.user.role);
+                showAlert({ type: 'success', message: 'Log in successfully' });
+                navigate('/users');
+            }
+        },
+        onError: (e) => {
+            const message = getApolloErrorMessage(e);
+            showAlert({ type: 'error', message });
+        },
+    });
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setForm(prev => ({ ...prev, [name]: value }));
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const toggleShowPassword = () => setShowPassword(show => !show);
+    const toggleShowPassword = () => setShowPassword((show) => !show);
 
     const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
     const isPasswordValid = form.password.trim().length > 0;
     const isFormValid = isEmailValid && isPasswordValid;
 
-    useEffect(() => {
-        if (data?.login?.access_token && data?.login?.refresh_token) {
-            setTokens(data.login.access_token, data.login.refresh_token);
-            setId(data.login.user.id);
-            showAlert({ type: 'success', message: 'Log in successfully' });
-            navigate('/users');
-        }
-    }, [data]);
+    const isChangedSinceLastSubmit =
+        !submittedSnapshot ||
+        form.email !== submittedSnapshot.email ||
+        form.password !== submittedSnapshot.password;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        try {
-            await loginQuery({
-                variables: {
-                    auth: {
-                        email: form.email,
-                        password: form.password,
-                    },
+
+        if (!isChangedSinceLastSubmit) return;
+
+        setSubmittedSnapshot({ ...form });
+
+        await loginQuery({
+            variables: {
+                auth: {
+                    email: form.email,
+                    password: form.password,
                 },
-            });
-        } catch (err) {
-            showAlert({ type: 'error', message: 'Login error' });
-            console.error(err);
-        }
+            },
+        });
     };
 
     return (
@@ -100,6 +127,13 @@ export const Login = () => {
                 variant="outlined"
                 fullWidth
                 required
+                sx={{
+                    '& label.Mui-focused': { color: 'rgb(198, 48, 49)' },
+                    '& .MuiInput-underline:after': { borderBottomColor: 'rgb(198, 48, 49)' },
+                    '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': { borderColor: 'rgb(198, 48, 49)' },
+                    },
+                }}
                 error={!!form.email && !isEmailValid}
                 helperText={form.email && !isEmailValid ? 'Invalid email' : ''}
             />
@@ -112,6 +146,13 @@ export const Login = () => {
                 variant="outlined"
                 fullWidth
                 required
+                sx={{
+                    '& label.Mui-focused': { color: 'rgb(198, 48, 49)' },
+                    '& .MuiInput-underline:after': { borderBottomColor: 'rgb(198, 48, 49)' },
+                    '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': { borderColor: 'rgb(198, 48, 49)' },
+                    },
+                }}
                 error={!isPasswordValid && !!form.password}
                 helperText={!isPasswordValid && !!form.password ? 'Password is required' : ''}
                 InputProps={{
@@ -128,13 +169,13 @@ export const Login = () => {
             <Button
                 type="submit"
                 variant="contained"
-                disabled={!isFormValid || loading || !!error}
+                disabled={!isFormValid || loading || !isChangedSinceLastSubmit}
                 sx={{
                     backgroundColor: 'rgb(198, 48, 49)',
                     ':hover': { backgroundColor: 'rgb(170, 40, 42)' },
                 }}
             >
-                Log in
+                {loading ? 'Logging in…' : 'Log in'}
             </Button>
 
             <Box textAlign="center" mt={1}>

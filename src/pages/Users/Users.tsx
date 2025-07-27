@@ -1,22 +1,24 @@
 import { useQuery } from '@apollo/client'
 import { ArrowDropDown, ArrowDropUp } from '@mui/icons-material'
-import { Box, List, ListItem, TextField, Typography } from '@mui/material'
+import { Box, Button, List, ListItem, TextField, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
 
 import { GET_USERS } from '@/api/queries/getUsers'
 import type { GetUsersData } from '@/api/types'
-import { getId } from '@/components/constants'
+import { CreateUserModal } from '@/components/CreateUserModal/CreateUserModal'
 import { UserCard } from '@/components/UserCard/UserCard'
+import { useAuth } from '@/hooks/useAuth'
 
 type SortKey = 'firstName' | 'lastName' | 'email' | 'department' | 'position'
 
 export const UsersPage = () => {
-    const { data, loading, error } = useQuery<GetUsersData>(GET_USERS)
+    const { data, loading, error, refetch } = useQuery<GetUsersData>(GET_USERS)
     const [search, setSearch] = useState('')
     const [sortKey, setSortKey] = useState<SortKey | null>(null)
     const [sortAsc, setSortAsc] = useState(true)
+    const [openModal, setOpenModal] = useState(false);
 
-    const currentUserId = getId()
+    const { id: currentUserId } = useAuth()
 
     const handleSort = (key: SortKey) => {
         if (sortKey === key) {
@@ -87,13 +89,28 @@ export const UsersPage = () => {
 
     return (
         <Box sx={{ width: '100%' }}>
+            {filteredUsers[0].role === 'Admin' && (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+                    <Button variant="contained" onClick={() => setOpenModal(true)} sx={{ backgroundColor: 'rgb(198, 48, 49)' }}>
+                        Create User
+                    </Button>
+                </Box>
+            )}
             <TextField
                 label="Find by username or email"
                 variant="outlined"
-                fullWidth
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                sx={{ mb: 3 }}
+                sx={{
+                    mb: 3,
+                    borderRadius: '15px',
+                    width: '400px',
+                    '& label.Mui-focused': { color: 'rgb(198, 48, 49)' },
+                    '& .MuiInput-underline:after': { borderBottomColor: 'rgb(198, 48, 49)' },
+                    '& .MuiOutlinedInput-root': {
+                        '&.Mui-focused fieldset': { borderColor: 'rgb(198, 48, 49)' },
+                    },
+                }}
             />
 
             {filteredUsers.length === 0 ? (
@@ -135,6 +152,7 @@ export const UsersPage = () => {
                     </List>
                 </section>
             )}
+            <CreateUserModal open={openModal} onClose={() => setOpenModal(false)} onCreated={refetch} />
         </Box>
     )
 }

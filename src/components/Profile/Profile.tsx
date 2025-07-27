@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 
-import { getId } from '@/components/constants';
+import { useAuth } from '@/hooks/useAuth';
 import { useAvatar } from '@/hooks/useAvatar';
 import { useProfileEdit } from '@/hooks/useProfileEdit';
 
@@ -25,7 +25,7 @@ type UserType = {
 type ProfileProps = { user: UserType };
 
 export const Profile: React.FC<ProfileProps> = ({ user }) => {
-    const id = getId();
+    const { id } = useAuth();
     const canEdit = user.id === id;
 
     const {

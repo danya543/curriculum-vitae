@@ -9,22 +9,19 @@ import { setContext } from '@apollo/client/link/context'
 import { onError } from '@apollo/client/link/error'
 
 import { UPDATE_TOKEN } from '@/api/mutations/updToken'
-import {
-    getAccessToken,
-    getRefreshToken,
-    setTokens,
-} from '@/components/constants'
+import { setTokens } from '@/components/constants'
+import { useAuth } from '@/hooks/useAuth'
 
 const httpLink = createHttpLink({
     uri: 'https://cv-project-js.inno.ws/api/graphql',
 })
 
 const authLink = setContext((_, { headers }) => {
-    const token = getAccessToken()
+    const { accessToken } = useAuth()
     return {
         headers: {
             ...headers,
-            Authorization: token ? `Bearer ${token}` : '',
+            Authorization: accessToken ? `Bearer ${accessToken}` : '',
         },
     }
 })
@@ -39,7 +36,7 @@ const resolvePendingRequests = () => {
 
 const tokenClient = new ApolloClient({
     link: setContext((_, { headers }) => {
-        const refreshToken = getRefreshToken()
+        const { refreshToken } = useAuth()
         return {
             headers: {
                 ...headers,

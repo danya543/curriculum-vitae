@@ -6,12 +6,12 @@ import {
 import { useState } from 'react';
 
 import { CREATE_CV } from '@/api/mutations/createCV';
-import { getId } from '@/components/constants';
+import { useAuth } from '@/hooks/useAuth';
 import type { Cv } from '@/types/types';
 import { useAlert } from '@/ui/Alert/useAlert';
 
 export const AddCV = ({ onCreateSuccess }: { onCreateSuccess: (cv: Cv) => void; }) => {
-    const userId = getId();
+    const { id } = useAuth();
     const { showAlert } = useAlert();
     const [open, setOpen] = useState(false);
 
@@ -43,7 +43,7 @@ export const AddCV = ({ onCreateSuccess }: { onCreateSuccess: (cv: Cv) => void; 
             name: form.name,
             description: form.description,
             education: form.education,
-            userId,
+            id,
         };
 
         try {

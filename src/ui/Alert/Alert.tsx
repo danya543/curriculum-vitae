@@ -34,6 +34,7 @@ export const AlertPortal = ({ type, message, duration = 3000 }: AlertPortalProps
         return () => {
             if (animationRef.current) cancelAnimationFrame(animationRef.current)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return createPortal(
