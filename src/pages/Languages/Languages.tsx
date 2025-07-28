@@ -27,6 +27,7 @@ import { GET_PROFICIENCY_LEVELS } from "@/api/queries/getLangProfieciency";
 import { GET_LANGUAGES } from "@/api/queries/getLanguages";
 import { GET_PROFILE_INFO } from "@/api/queries/getProfileLangs";
 import { useAuth } from "@/hooks/useAuth";
+import { useAlert } from "@/ui/Alert/useAlert";
 
 type Language = {
     id: string;
@@ -54,6 +55,7 @@ export type ProfileVars = {
 
 export const Languages = () => {
     const { id } = useAuth();
+    const { showAlert } = useAlert();
 
     const { data: langsData, loading: langsLoading } = useQuery<{ languages: Language[] }>(GET_LANGUAGES);
     const { data: profsData, loading: profsLoading } = useQuery<{ __type: { enumValues: LanguageProficiency[] } }>(
@@ -63,6 +65,9 @@ export const Languages = () => {
         GET_PROFILE_INFO,
         { variables: { userId: id } }
     );
+    const [addProfileLanguage] = useMutation(ADD_PROFILE_LANGUAGE);
+    const [updateProfileLanguage] = useMutation(UPDATE_PROFILE_LANGUAGE);
+    const [deleteProfileLanguage] = useMutation(DELETE_PROFILE_LANGUAGE);
 
     const [profileLanguages, setProfileLanguages] = useState<ProfileLanguage[]>([]);
     const [selectedLangId, setSelectedLangId] = useState("");
@@ -73,9 +78,6 @@ export const Languages = () => {
     const [deleting, setDeleting] = useState(false);
     const [selectedForDelete, setSelectedForDelete] = useState<string[]>([]);
 
-    const [addProfileLanguage] = useMutation(ADD_PROFILE_LANGUAGE);
-    const [updateProfileLanguage] = useMutation(UPDATE_PROFILE_LANGUAGE);
-    const [deleteProfileLanguage] = useMutation(DELETE_PROFILE_LANGUAGE);
 
     useEffect(() => {
         if (!loading && userData) {
@@ -112,6 +114,11 @@ export const Languages = () => {
         if (!selectedLangId || !selectedProficiency) return;
         const selectedLanguage = langsData.languages.find(l => l.id === selectedLangId);
         if (!selectedLanguage) return;
+        const alreadyExist = userData?.profile.languages.some(l => l.name === selectedLanguage.name)
+        if (!editingLanguageName && alreadyExist) {
+            showAlert({ type: 'error', message: 'Language already added!' })
+            return;
+        }
 
         try {
             if (editingLanguageName) {
@@ -124,6 +131,7 @@ export const Languages = () => {
                         },
                     },
                 });
+                showAlert({ type: 'success', message: 'Update language successfully' })
                 setProfileLanguages(data?.updateProfileLanguage.languages || []);
             } else {
                 const { data } = await addProfileLanguage({
@@ -135,11 +143,12 @@ export const Languages = () => {
                         },
                     },
                 });
+                showAlert({ type: 'success', message: 'Add language successfully' })
                 setProfileLanguages(data?.addProfileLanguage.languages || []);
             }
             handleDialogClose();
         } catch {
-            alert("Error saving language");
+            showAlert({ type: 'error', message: 'Error saving language' })
         }
     };
 
@@ -159,7 +168,6 @@ export const Languages = () => {
 
     const handleDelete = async () => {
         try {
-
             const { data } = await deleteProfileLanguage({
                 variables: {
                     language: {
@@ -168,12 +176,12 @@ export const Languages = () => {
                     }
                 },
             });
+            showAlert({ type: 'success', message: 'Language(s) successfully deleted' })
             setProfileLanguages(data?.deleteProfileLanguage.languages || []);
-
             setSelectedForDelete([]);
             setDeleting(false);
         } catch {
-            alert("Error deleting language(s)");
+            showAlert({ type: 'error', message: 'Error deleting language(s)' })
         }
     };
 
@@ -224,7 +232,7 @@ export const Languages = () => {
                             {deleting ? "Delete Selected" : "Delete Languages"}
                         </Button>
                         {deleting && (
-                            <Button variant="text" onClick={handleToggleDeleteMode}>
+                            <Button variant="text" sx={{ color: '#C63031' }} onClick={handleToggleDeleteMode}>
                                 Cancel
                             </Button>
                         )}

@@ -11,23 +11,16 @@ import { useAuth } from "@/hooks/useAuth";
 import type { MasteryLevel, Skill, Skills } from "@/types/types";
 import { useAlert } from "@/ui/Alert/useAlert";
 
-const groupSkillsByCategory = (
-    skills: Skill[],
-    categoryMap: Record<string, string>
-): Record<string, Skill[]> => {
-    return skills.reduce((acc, skill) => {
-        const category = skill.category_name || categoryMap[skill.categoryId!] || "Uncategorized";
-        (acc[category] ??= []).push(skill);
-        return acc;
-    }, {} as Record<string, Skill[]>);
-};
+type ProfileSkills = {
+    profile: { skills: Skill[] }
+}
 
 export const useProfileSkills = () => {
     const { id } = useAuth();
     const { showAlert } = useAlert();
 
     const { data: skillsData, loading: skillsLoading, error: skillsError } = useQuery<Skills>(GET_SKILLS);
-    const { data: profileData } = useQuery(GET_PROFILE_INFO, { variables: { userId: id } });
+    const { data: profileData } = useQuery<ProfileSkills>(GET_PROFILE_INFO, { variables: { userId: id } });
     const { data: categoryData } = useQuery<{ skillCategories: { id: string; name: string }[] }>(GET_SKILL_CATEGORIES);
 
     const [addSkill] = useMutation(ADD_PROFILE_SKILL);
@@ -51,15 +44,29 @@ export const useProfileSkills = () => {
     }, [categoryData]);
 
     const groupedSkills = useMemo(() => {
-        return groupSkillsByCategory(profileData?.profile.skills || [], categoryMap);
+        return profileData?.profile.skills.reduce<Record<string, Skill[]>>((acc, skill) => {
+            const category = skill.category_name || categoryMap[skill.categoryId!] || "Uncategorized";
+            (acc[category] ??= []).push(skill);
+            return acc;
+        }, {});
     }, [profileData, categoryMap]);
 
     const groupedSelectSkills = useMemo(() => {
-        return groupSkillsByCategory(skillsData?.skills || [], categoryMap);
+        return (skillsData?.skills ?? []).reduce<Record<string, Skill[]>>((acc, skill) => {
+            const category = skill.category_name || categoryMap[skill.categoryId!] || "Uncategorized";
+            (acc[category] ??= []).push(skill);
+            return acc;
+        }, {});
     }, [skillsData, categoryMap]);
 
     const handleAddSkill = async () => {
         const skill = skillsData?.skills.find(s => s.id === selectedSkillId);
+        const alreadyExists = profileData?.profile.skills.some((s) => s.name === skill?.name);
+        if (alreadyExists) {
+            showAlert({ type: "error", message: "This skill is already added" });
+            return;
+        }
+
         if (!skill || !selectedMastery) return;
         try {
             await addSkill({
@@ -67,7 +74,7 @@ export const useProfileSkills = () => {
                     skill: {
                         userId: id,
                         name: skill.name,
-                        categoryId: selectedSkillId,
+                        categoryId: skill.category.id,
                         mastery: selectedMastery,
                     },
                 },

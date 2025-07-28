@@ -37,10 +37,10 @@ export const ProfileSkills = () => {
     return (
         <Box>
             <Typography variant="h6" gutterBottom>Skills</Typography>
-            {Object.entries(groupedSkills).length === 0 ? (
+            {Object.entries(groupedSkills || {}).length === 0 ? (
                 <Typography>No skills added.</Typography>
             ) : (
-                Object.entries(groupedSkills).map(([category, skills]) => (
+                Object.entries(groupedSkills || {}).map(([category, skills]) => (
                     <Box key={category} sx={{ mb: 3 }}>
                         <Typography variant="h6" gutterBottom>
                             {category}
@@ -93,7 +93,7 @@ export const ProfileSkills = () => {
                             Delete Selected
                         </Button>
                     </Box>
-                ) : Object.entries(groupedSkills).length > 0 && (
+                ) : Object.entries(groupedSkills || {}).length > 0 && (
                     <Button
                         sx={{ color: '#C63031', '&:hover': { backgroundColor: 'action.hover' } }}
                         onClick={() => setDeleteMode(true)}
