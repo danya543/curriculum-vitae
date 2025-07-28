@@ -10,6 +10,8 @@ import {
 import { GET_DEPARTMENTS } from "@/api/queries/getDepartments";
 import type { DepartmentsData, DepartmentsProps } from "@/types/types";
 
+import { redInputSx } from "../constants";
+
 export const Departments = ({ department, onChange, disabled }: DepartmentsProps) => {
     const { data, loading, error } = useQuery<DepartmentsData>(GET_DEPARTMENTS);
 
@@ -24,14 +26,7 @@ export const Departments = ({ department, onChange, disabled }: DepartmentsProps
 
     return (
         <FormControl fullWidth
-            sx={{
-                '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'rgb(198, 48, 49)',
-                },
-                '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'rgb(198, 48, 49)',
-                },
-            }}>
+            sx={redInputSx}>
             <InputLabel>Department</InputLabel>
             <Select
                 value={data?.departments.find(dep => department === dep.id)?.name}

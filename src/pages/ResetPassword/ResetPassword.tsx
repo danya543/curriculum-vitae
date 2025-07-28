@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { noAuthClient } from '@/api/noAuthClient';
+import { redInputSx } from '@/components/constants';
 import { useAlert } from '@/ui/Alert/useAlert';
 
 const RESET_PASSWORD = gql`
@@ -86,19 +87,7 @@ export const ResetPassword = () => {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         required
-                        sx={{
-                            '& label.Mui-focused': {
-                                color: 'rgb(198, 48, 49)',
-                            },
-                            '& .MuiInput-underline:after': {
-                                borderBottomColor: 'rgb(198, 48, 49)',
-                            },
-                            '& .MuiOutlinedInput-root': {
-                                '&.Mui-focused fieldset': {
-                                    borderColor: 'rgb(198, 48, 49)',
-                                },
-                            },
-                        }}
+                        sx={redInputSx}
                     />
                 </FormControl>
                 <Button

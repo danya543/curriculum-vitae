@@ -1,68 +1,126 @@
-import { useQuery } from "@apollo/client";
-import { Box, CircularProgress, List, ListItem, ListItemText, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, List, Typography, useTheme } from "@mui/material";
 
-import { GET_SKILLS } from "@/api/queries/getSkills";
-import type { SkillsData } from "@/api/types";
+import { SkillCard } from "@/components/SkillCard/SkillCard";
+import { AddSkillDialog } from "@/components/SkillDialog/Add";
+import { EditSkillDialog } from "@/components/SkillDialog/Edit";
+import { useProfileSkills } from "@/hooks/useProfileSkills";
 
-export const Skills = () => {
-    const { data, loading, error } = useQuery<SkillsData>(GET_SKILLS);
+export const ProfileSkills = () => {
+    const theme = useTheme();
 
-    if (loading) return <CircularProgress />;
-    if (error) return <Typography color="error">Error loading skills</Typography>;
+    const {
+        skillsLoading,
+        skillsError,
+        groupedSkills,
+        groupedSelectSkills,
+        deleteMode,
+        setDeleteMode,
+        selectedForDelete,
+        setSelectedForDelete,
+        addOpen,
+        setAddOpen,
+        editOpen,
+        setEditOpen,
+        selectedSkillId,
+        setSelectedSkillId,
+        selectedMastery,
+        setSelectedMastery,
+        handleAddSkill,
+        handleUpdateSkill,
+        handleDelete,
+        handleEditClick,
+    } = useProfileSkills();
+
+    if (skillsLoading) return <CircularProgress />;
+    if (skillsError) return <Typography color="error">Failed to load skills</Typography>;
 
     return (
-        <Box
-            sx={{
-                boxSizing: "border-box",
-                pr: 1,
-                width: "100%",
-            }}
-        >
-            <Typography variant="h6" gutterBottom>
-                Skills List
-            </Typography>
-            <List
-                sx={{
-                    width: "100%",
-                    boxSizing: "border-box",
-                    overflowWrap: "break-word",
-                }}
-            >
-                {data?.skills.map((skill) => (
-                    <ListItem key={skill.id} divider>
-                        <ListItemText
-                            primary={
-                                <Typography
-                                    sx={{ whiteSpace: "normal", wordBreak: "break-word" }}
-                                >
-                                    {skill.name}
-                                </Typography>
-                            }
-                            secondary={
-                                <>
-                                    <Typography
-                                        component="span"
-                                        variant="body2"
-                                        color="text.primary"
-                                        sx={{ whiteSpace: "normal", wordBreak: "break-word" }}
-                                    >
-                                        Category: {skill.category?.name || skill.category_name || "N/A"}
-                                    </Typography>
-                                    <br />
-                                    <Typography
-                                        component="span"
-                                        variant="body2"
-                                        color="text.secondary"
-                                        sx={{ whiteSpace: "normal", wordBreak: "break-word" }}
-                                    >
-                                        Parent Category: {skill.category_parent_name || "N/A"}
-                                    </Typography>
-                                </>
-                            }
-                        />
-                    </ListItem>
-                ))}
-            </List>
+        <Box>
+            <Typography variant="h6" gutterBottom>Skills</Typography>
+            {Object.entries(groupedSkills).length === 0 ? (
+                <Typography>No skills added.</Typography>
+            ) : (
+                Object.entries(groupedSkills).map(([category, skills]) => (
+                    <Box key={category} sx={{ mb: 3 }}>
+                        <Typography variant="h6" gutterBottom>
+                            {category}
+                        </Typography>
+                        <List dense sx={{ display: "flex", flexWrap: "wrap" }}>
+                            {skills.map((skill) => (
+                                <SkillCard
+                                    key={skill.id}
+                                    skill={skill}
+                                    deleteMode={deleteMode}
+                                    isSelected={selectedForDelete.includes(skill.name)}
+                                    onClick={() => {
+                                        if (deleteMode) {
+                                            const isSelected = selectedForDelete.includes(skill.name);
+                                            setSelectedForDelete(prev =>
+                                                isSelected
+                                                    ? prev.filter(name => name !== skill.name)
+                                                    : [...prev, skill.name]
+                                            );
+                                        } else {
+                                            handleEditClick(skill);
+                                        }
+                                    }}
+                                />
+                            ))}
+                        </List>
+                    </Box>
+                ))
+            )}
+
+            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: '10px', mb: 2 }}>
+                <Button
+                    sx={{ background: 'transparent', color: theme.palette.text.secondary, '&:hover': { backgroundColor: 'action.hover' } }}
+                    onClick={() => setAddOpen(true)}
+                >
+                    Add Skill
+                </Button>
+
+                {deleteMode ? (
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                        <Button sx={{ color: '#C63031', '&:hover': { backgroundColor: 'action.hover' } }} onClick={() => { setDeleteMode(false); setSelectedForDelete([]); }}>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            disabled={selectedForDelete.length === 0}
+                            onClick={handleDelete}
+                        >
+                            Delete Selected
+                        </Button>
+                    </Box>
+                ) : Object.entries(groupedSkills).length > 0 && (
+                    <Button
+                        sx={{ color: '#C63031', '&:hover': { backgroundColor: 'action.hover' } }}
+                        onClick={() => setDeleteMode(true)}
+                    >
+                        Delete Skill
+                    </Button>
+                )}
+            </Box>
+
+            <AddSkillDialog
+                open={addOpen}
+                setOpen={setAddOpen}
+                selectedSkillId={selectedSkillId}
+                selectedMastery={selectedMastery}
+                setSelectedSkillId={setSelectedSkillId}
+                setSelectedMastery={setSelectedMastery}
+                handleAddSkill={handleAddSkill}
+                groupedSelectSkills={groupedSelectSkills}
+            />
+
+            <EditSkillDialog
+                editOpen={editOpen}
+                setEditOpen={setEditOpen}
+                selectedMastery={selectedMastery}
+                setSelectedMastery={setSelectedMastery}
+                handleUpdateSkill={handleUpdateSkill}
+            />
         </Box>
     );
 };

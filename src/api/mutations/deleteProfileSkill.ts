@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
-export const GET_PROFILE_INFO = gql`
-  query Profile($userId: ID!) {
-    profile(userId: $userId) {
+export const DELETE_PROFILE_SKILL = gql`
+  mutation DeleteProfileSkill($skill: DeleteProfileSkillInput!) {
+    deleteProfileSkill(skill: $skill) {
       id
       created_at
       first_name
@@ -11,7 +11,6 @@ export const GET_PROFILE_INFO = gql`
       avatar
       skills {
         name
-        categoryId
         mastery
       }
       languages {

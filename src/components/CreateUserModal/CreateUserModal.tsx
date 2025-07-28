@@ -21,6 +21,8 @@ import { GET_DEPARTMENTS } from '@/api/queries/getDepartments';
 import { GET_POSITIONS } from '@/api/queries/getPosition';
 import { useAlert } from '@/ui/Alert/useAlert';
 
+import { redInputSx } from '../constants';
+
 type Props = {
     open: boolean;
     onClose: () => void;
@@ -56,13 +58,6 @@ export const CreateUserModal = ({ open, onClose, onCreated }: Props) => {
             showAlert({ type: 'error', message: err.message });
         },
     });
-
-    const redInputSx = {
-        '& label.Mui-focused': { color: '#C63031' },
-        '& .MuiOutlinedInput-root': {
-            '&.Mui-focused fieldset': { borderColor: '#C63031' },
-        },
-    };
 
     const isValid = useMemo(() => {
         return (

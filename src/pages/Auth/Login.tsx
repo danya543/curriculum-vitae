@@ -12,7 +12,7 @@ import { type ChangeEvent, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { LOGIN } from '@/api/mutations/auth';
-import { setInfo, setTokens } from '@/components/constants';
+import { redInputSx, setInfo, setTokens } from '@/components/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useAlert } from '@/ui/Alert/useAlert';
 
@@ -127,13 +127,7 @@ export const Login = () => {
                 variant="outlined"
                 fullWidth
                 required
-                sx={{
-                    '& label.Mui-focused': { color: 'rgb(198, 48, 49)' },
-                    '& .MuiInput-underline:after': { borderBottomColor: 'rgb(198, 48, 49)' },
-                    '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': { borderColor: 'rgb(198, 48, 49)' },
-                    },
-                }}
+                sx={redInputSx}
                 error={!!form.email && !isEmailValid}
                 helperText={form.email && !isEmailValid ? 'Invalid email' : ''}
             />
@@ -146,13 +140,7 @@ export const Login = () => {
                 variant="outlined"
                 fullWidth
                 required
-                sx={{
-                    '& label.Mui-focused': { color: 'rgb(198, 48, 49)' },
-                    '& .MuiInput-underline:after': { borderBottomColor: 'rgb(198, 48, 49)' },
-                    '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': { borderColor: 'rgb(198, 48, 49)' },
-                    },
-                }}
+                sx={redInputSx}
                 error={!isPasswordValid && !!form.password}
                 helperText={!isPasswordValid && !!form.password ? 'Password is required' : ''}
                 InputProps={{

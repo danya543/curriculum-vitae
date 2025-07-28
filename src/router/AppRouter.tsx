@@ -10,7 +10,7 @@ import { ForgotPassword } from '@/pages/ForgotPassword/ForgotPassword';
 import { Languages } from '@/pages/Languages/Languages';
 import { MainLayout } from '@/pages/MainLayout/MainLayout';
 import { ResetPassword } from '@/pages/ResetPassword/ResetPassword';
-import { Skills } from '@/pages/Skills/Skills';
+import { ProfileSkills } from '@/pages/Skills/Skills';
 import { UserPage } from '@/pages/User/User';
 import { UsersPage } from '@/pages/Users/Users';
 
@@ -51,7 +51,7 @@ export const router = createBrowserRouter([
                 path: 'skills',
                 element: (
                     <Suspense fallback={'Loader'}>
-                        <Skills />
+                        <ProfileSkills />
                     </Suspense>
                 ),
             },

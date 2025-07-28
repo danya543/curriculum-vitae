@@ -3,6 +3,8 @@ import { Box, Button, Grid, TextField } from '@mui/material';
 import { Departments } from '@/components/Departments/Departments';
 import { Positions } from '@/components/Positions/Positions';
 
+import { redInputSx } from '../constants';
+
 type Props = {
     canEdit: boolean;
     form: {
@@ -46,13 +48,7 @@ export const ProfileForm: React.FC<Props> = ({
                         value={form.firstName}
                         onChange={onChange('firstName')}
                         disabled={!canEdit}
-                        sx={{
-                            '& label.Mui-focused': { color: 'rgb(198, 48, 49)' },
-                            '& .MuiInput-underline:after': { borderBottomColor: 'rgb(198, 48, 49)' },
-                            '& .MuiOutlinedInput-root': {
-                                '&.Mui-focused fieldset': { borderColor: 'rgb(198, 48, 49)' },
-                            },
-                        }}
+                        sx={redInputSx}
                     />
                 </Grid>
                 <Grid size={6}>
@@ -62,13 +58,7 @@ export const ProfileForm: React.FC<Props> = ({
                         value={form.lastName}
                         onChange={onChange('lastName')}
                         disabled={!canEdit}
-                        sx={{
-                            '& label.Mui-focused': { color: 'rgb(198, 48, 49)' },
-                            '& .MuiInput-underline:after': { borderBottomColor: 'rgb(198, 48, 49)' },
-                            '& .MuiOutlinedInput-root': {
-                                '&.Mui-focused fieldset': { borderColor: 'rgb(198, 48, 49)' },
-                            },
-                        }}
+                        sx={redInputSx}
                     />
                 </Grid>
 

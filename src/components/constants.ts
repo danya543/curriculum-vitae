@@ -13,4 +13,9 @@ export const removeTokens = () => {
     localStorage.removeItem('user_id')
 }
 
-export const langLevels = ["A1", "A2", "B1", "B2", "C1", "C2"];
+export const redInputSx = {
+    '& label.Mui-focused': { color: '#C63031' },
+    '& .MuiOutlinedInput-root': {
+        '&.Mui-focused fieldset': { borderColor: '#C63031' },
+    },
+};

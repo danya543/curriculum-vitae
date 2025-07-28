@@ -17,6 +17,7 @@ import {
     Select,
     Typography,
 } from "@mui/material";
+import type { Profile } from "cv-graphql";
 import { useEffect, useState } from "react";
 
 import { ADD_PROFILE_LANGUAGE } from "@/api/mutations/addProfileLang";
@@ -24,7 +25,7 @@ import { DELETE_PROFILE_LANGUAGE } from "@/api/mutations/deleteProfileLang";
 import { UPDATE_PROFILE_LANGUAGE } from "@/api/mutations/updProfileLang";
 import { GET_PROFICIENCY_LEVELS } from "@/api/queries/getLangProfieciency";
 import { GET_LANGUAGES } from "@/api/queries/getLanguages";
-import { GET_PROFILE_LANGUAGES } from "@/api/queries/getProfileLangs";
+import { GET_PROFILE_INFO } from "@/api/queries/getProfileLangs";
 import { useAuth } from "@/hooks/useAuth";
 
 type Language = {
@@ -43,14 +44,11 @@ type ProfileLanguage = {
     proficiency: string;
 };
 
-type ProfileLanguagesData = {
-    profile: {
-        id: string;
-        languages: ProfileLanguage[];
-    };
+export type ProfileData = {
+    profile: Profile;
 };
 
-type ProfileLanguagesVars = {
+export type ProfileVars = {
     userId: string | null;
 };
 
@@ -61,8 +59,8 @@ export const Languages = () => {
     const { data: profsData, loading: profsLoading } = useQuery<{ __type: { enumValues: LanguageProficiency[] } }>(
         GET_PROFICIENCY_LEVELS
     );
-    const { data: userLangs, loading } = useQuery<ProfileLanguagesData, ProfileLanguagesVars>(
-        GET_PROFILE_LANGUAGES,
+    const { data: userData, loading } = useQuery<ProfileData, ProfileVars>(
+        GET_PROFILE_INFO,
         { variables: { userId: id } }
     );
 
@@ -80,10 +78,10 @@ export const Languages = () => {
     const [deleteProfileLanguage] = useMutation(DELETE_PROFILE_LANGUAGE);
 
     useEffect(() => {
-        if (!loading && userLangs) {
-            setProfileLanguages(userLangs.profile.languages);
+        if (!loading && userData) {
+            setProfileLanguages(userData.profile.languages);
         }
-    }, [loading, userLangs]);
+    }, [loading, userData]);
 
     if (langsLoading || profsLoading) return <CircularProgress />;
     if (!langsData || !profsData) return <Typography color="error">Failed to load data</Typography>;

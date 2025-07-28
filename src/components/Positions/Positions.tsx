@@ -11,6 +11,8 @@ import { GET_POSITIONS } from "@/api/queries/getPosition";
 import type { PositionsData } from "@/api/types";
 import type { PositionsProps } from "@/types/types";
 
+import { redInputSx } from "../constants";
+
 export const Positions = ({ position, onChange, disabled }: PositionsProps) => {
     const { data, loading, error } = useQuery<PositionsData>(GET_POSITIONS);
 
@@ -24,14 +26,7 @@ export const Positions = ({ position, onChange, disabled }: PositionsProps) => {
     };
 
     return (
-        <FormControl fullWidth sx={{
-            '& .MuiInputLabel-root.Mui-focused': {
-                color: 'rgb(198, 48, 49)',
-            },
-            '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'rgb(198, 48, 49)',
-            },
-        }}>
+        <FormControl fullWidth sx={redInputSx}>
             <InputLabel>Position</InputLabel>
             <Select value={data?.positions.find(pos => position === pos.id)?.name} label="Position" onChange={handleChange} disabled={disabled} MenuProps={{
                 PaperProps: {

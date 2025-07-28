@@ -14,13 +14,15 @@ import {
 import { Mastery } from "@/components/CVTabs/constants";
 import type { MasteryLevel, Skill } from "@/types/types";
 
+import { redInputSx } from "../constants";
+
 interface Props {
     open: boolean;
     setOpen: (value: boolean) => void;
     selectedSkillId: string;
     selectedMastery: MasteryLevel | "";
     setSelectedSkillId: (id: string) => void;
-    setSelectedMastery: (m: MasteryLevel) => void;
+    setSelectedMastery: (m: MasteryLevel | '') => void;
     handleAddSkill: () => void;
     groupedSelectSkills: Record<string, Skill[]>;
 }
@@ -35,10 +37,10 @@ export const AddSkillDialog: React.FC<Props> = ({
     handleAddSkill,
     groupedSelectSkills,
 }) => (
-    <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={() => { setSelectedMastery(''); setSelectedSkillId(''); setOpen(false) }} fullWidth maxWidth="sm">
         <DialogTitle>Add Skill</DialogTitle>
-        <DialogContent>
-            <FormControl fullWidth sx={{ mt: 2 }}>
+        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <FormControl fullWidth required sx={{ mt: 2, ...redInputSx, }}>
                 <InputLabel>Skill</InputLabel>
                 <Select
                     label="Skill"
@@ -63,7 +65,7 @@ export const AddSkillDialog: React.FC<Props> = ({
                 </Select>
             </FormControl>
 
-            <FormControl fullWidth sx={{ mt: 2 }}>
+            <FormControl fullWidth required sx={redInputSx}>
                 <InputLabel>Mastery</InputLabel>
                 <Select
                     label="Mastery"
@@ -79,10 +81,10 @@ export const AddSkillDialog: React.FC<Props> = ({
             </FormControl>
         </DialogContent>
         <DialogActions>
-            <Button style={{ color: '#C63031' }} onClick={() => setOpen(false)}>Cancel</Button>
+            <Button style={{ color: '#C63031' }} onClick={() => { setSelectedMastery(''); setSelectedSkillId(''); setOpen(false) }}>Cancel</Button>
             <Button
                 variant="contained"
-                onClick={handleAddSkill}
+                onClick={() => { handleAddSkill(); setSelectedMastery(''); setSelectedSkillId(''); }}
                 disabled={!selectedSkillId || !selectedMastery}
                 sx={{ backgroundColor: "transparent", color: '#C63031', "&:hover": { backgroundColor: "#a82525" } }}
             >

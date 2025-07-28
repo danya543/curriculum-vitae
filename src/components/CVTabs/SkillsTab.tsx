@@ -39,12 +39,15 @@ export const SkillsTab: React.FC<SkillsTabProps> = ({ skills: initialSkills, cvI
                                     skill={skill}
                                     deleteMode={deleteMode}
                                     isSelected={selectedForDelete.includes(skill.name)}
-                                    onClick={() => handleEditClick(skill)}
-                                    onCheck={() => {
-                                        const isChecked = selectedForDelete.includes(skill.name);
-                                        setSelectedForDelete((prev) =>
-                                            isChecked ? prev.filter(n => n !== skill.name) : [...prev, skill.name]
-                                        );
+                                    onClick={() => {
+                                        if (deleteMode) {
+                                            const isChecked = selectedForDelete.includes(skill.name);
+                                            setSelectedForDelete((prev) =>
+                                                isChecked ? prev.filter(n => n !== skill.name) : [...prev, skill.name]
+                                            );
+                                        } else {
+                                            handleEditClick(skill)
+                                        }
                                     }}
                                 />
                             ))}

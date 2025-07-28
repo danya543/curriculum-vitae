@@ -7,6 +7,8 @@ import {
 import { Mastery } from "@/components/CVTabs/constants";
 import type { MasteryLevel } from "@/types/types";
 
+import { redInputSx } from "../constants";
+
 interface Props {
     editOpen: boolean;
     setEditOpen: (value: boolean) => void;
@@ -25,7 +27,7 @@ export const EditSkillDialog: React.FC<Props> = ({
     <Dialog open={editOpen} onClose={() => setEditOpen(false)} fullWidth maxWidth="sm">
         <DialogTitle>Edit Skill</DialogTitle>
         <DialogContent>
-            <FormControl fullWidth sx={{ mt: 2 }}>
+            <FormControl fullWidth required sx={{ mt: 2, ...redInputSx }}>
                 <InputLabel>Mastery</InputLabel>
                 <Select
                     label="Mastery"

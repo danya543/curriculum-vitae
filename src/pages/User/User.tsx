@@ -12,7 +12,7 @@ import { GET_USER } from "@/api/queries/getUser";
 import { BreadcrumbsNav } from "@/components/Nav/Nav";
 import { Profile } from "@/components/Profile/Profile";
 import { Languages } from "@/pages/Languages/Languages";
-import { Skills } from "@/pages/Skills/Skills";
+import { ProfileSkills } from "@/pages/Skills/Skills";
 
 export const UserPage = () => {
     const { id } = useParams();
@@ -62,7 +62,7 @@ export const UserPage = () => {
 
             <Box sx={{ mt: 2, flexGrow: 1, overflowY: 'auto' }}>
                 {tab === 0 && <Profile user={user} />}
-                {tab === 1 && <Skills />}
+                {tab === 1 && <ProfileSkills />}
                 {tab === 2 && <Languages />}
             </Box>
         </Container>
