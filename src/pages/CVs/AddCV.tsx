@@ -6,6 +6,7 @@ import {
 import { useState } from 'react';
 
 import { CREATE_CV } from '@/api/mutations/createCV';
+import { redInputSx } from '@/components/constants';
 import { useAuth } from '@/hooks/useAuth';
 import type { Cv } from '@/types/types';
 import { useAlert } from '@/ui/Alert/useAlert';
@@ -43,7 +44,7 @@ export const AddCV = ({ onCreateSuccess }: { onCreateSuccess: (cv: Cv) => void; 
             name: form.name,
             description: form.description,
             education: form.education,
-            id,
+            userId: id,
         };
 
         try {
@@ -60,7 +61,7 @@ export const AddCV = ({ onCreateSuccess }: { onCreateSuccess: (cv: Cv) => void; 
 
     return (
         <>
-            <Button variant="contained" onClick={handleOpen}>Add new CV</Button>
+            <Button sx={{ color: '#c63031' }} onClick={handleOpen}>Add new CV</Button>
 
             <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
                 <DialogTitle>Create New CV</DialogTitle>
@@ -69,18 +70,21 @@ export const AddCV = ({ onCreateSuccess }: { onCreateSuccess: (cv: Cv) => void; 
                         <TextField
                             label="Name"
                             required
+                            sx={redInputSx}
                             value={form.name}
                             onChange={e => handleChange('name', e.target.value)}
                         />
                         <TextField
                             label="Education"
                             value={form.education}
+                            sx={redInputSx}
                             onChange={e => handleChange('education', e.target.value)}
                         />
                         <TextField
                             label="Description"
                             required
                             multiline
+                            sx={redInputSx}
                             rows={3}
                             value={form.description}
                             onChange={e => handleChange('description', e.target.value)}
@@ -88,8 +92,8 @@ export const AddCV = ({ onCreateSuccess }: { onCreateSuccess: (cv: Cv) => void; 
                     </Stack>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleSubmit} variant="contained" disabled={isDisabled}>Create</Button>
+                    <Button sx={{ color: '#c63031' }} onClick={handleClose}>Cancel</Button>
+                    <Button sx={{ background: '#c63031', '&:hover': { background: 'action.hover' } }} onClick={handleSubmit} variant="contained" disabled={isDisabled}>Create</Button>
                 </DialogActions>
             </Dialog>
         </>

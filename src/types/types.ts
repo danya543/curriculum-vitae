@@ -27,7 +27,7 @@ export interface Skills {
     skills: Skill[];
 }
 export interface SkillsTabProps {
-    skills: Skill[];
+    initialSkills: Skill[];
     cvId: number;
 }
 
@@ -56,6 +56,7 @@ export type CvFormState = {
 export interface Cv extends CvFormState {
     id: number;
     created_at: string;
+    user: { email: string }
 }
 
 export interface CvsData {
@@ -68,6 +69,7 @@ export interface CvCardProps {
         name: string;
         education: string | null;
         description: string;
+        user: { email: string }
     };
     onClick: (id: number) => void;
     onDeleteSuccess: (cvId: number) => void;

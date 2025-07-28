@@ -8,6 +8,18 @@ export const CREATE_CV = gql`
       name
       education
       description
+      user {
+        id
+        email
+        profile {
+          first_name
+          last_name
+          full_name
+        }
+        department_name
+        position_name
+        role
+      }
       languages {
         name
         proficiency

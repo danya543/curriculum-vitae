@@ -10,8 +10,6 @@ import { GET_LANGUAGES } from "@/api/queries/getLanguages";
 import { GET_PROFILE_INFO } from "@/api/queries/getProfileLangs";
 import { useAlert } from "@/ui/Alert/useAlert";
 
-import { useAuth } from "./useAuth";
-
 type Language = {
     id: string;
     name: string;
@@ -36,8 +34,7 @@ export type ProfileVars = {
     userId: string | null;
 };
 
-export const useProfileLang = () => {
-    const { id } = useAuth();
+export const useProfileLang = ({ id }: { id: string }) => {
     const { showAlert } = useAlert();
 
     const { data: langsData, loading: langsLoading } = useQuery<{ languages: Language[] }>(GET_LANGUAGES);

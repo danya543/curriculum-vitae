@@ -1,4 +1,5 @@
-import { Box, Button, List, Typography, useTheme } from "@mui/material";
+import { Box, Button, List, Typography } from "@mui/material";
+import { Trash2 } from "lucide-react";
 import React from "react";
 
 import { SkillCard } from "@/components/SkillCard/SkillCard";
@@ -8,7 +9,7 @@ import { useSkillsTab } from "@/hooks/useSkillTab";
 import type { SkillsTabProps } from "@/types/types";
 
 
-export const SkillsTab: React.FC<SkillsTabProps> = ({ skills: initialSkills, cvId }) => {
+export const SkillsTab: React.FC<SkillsTabProps> = ({ initialSkills, cvId }) => {
     const {
         groupedSkills,
         deleteMode,
@@ -19,8 +20,7 @@ export const SkillsTab: React.FC<SkillsTabProps> = ({ skills: initialSkills, cvI
         setSelectedForDelete,
         renderAddDialog,
         renderEditDialog,
-    } = useSkillsTab({ skills: initialSkills, cvId });
-    const theme = useTheme();
+    } = useSkillsTab({ initialSkills, cvId });
 
     return (
         <Box>
@@ -57,7 +57,7 @@ export const SkillsTab: React.FC<SkillsTabProps> = ({ skills: initialSkills, cvI
             )}
 
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: '10px', mb: 2 }}>
-                <Button sx={{ background: 'transparent', color: theme.palette.text.secondary, '&:hover': { background: '#2e2e2e' }, }} variant="contained" onClick={() => renderAddDialog.setOpen(true)}>
+                <Button sx={{ color: '#C63031', '&:hover': { background: 'action.hover' }, }} onClick={() => renderAddDialog.setOpen(true)}>
                     Add Skill
                 </Button>
 
@@ -77,11 +77,11 @@ export const SkillsTab: React.FC<SkillsTabProps> = ({ skills: initialSkills, cvI
                     </Box>
                 ) : Object.entries(groupedSkills).length > 0 && (
                     <Button sx={{
-                        border: 'none',
                         color: '#C63031',
-                        '&:hover': { background: '#2e2e2e' },
-                    }} variant="outlined" onClick={() => setDeleteMode(true)}>
-                        Delete Skill
+                        gap: '5px',
+                        '&:hover': { background: 'action:hover' },
+                    }} variant="text" onClick={() => setDeleteMode(true)}>
+                        <Trash2 width={20} height={20} />Delete Skill
                     </Button>
                 )}
             </Box>

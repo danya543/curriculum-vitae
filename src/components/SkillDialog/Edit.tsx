@@ -7,7 +7,7 @@ import {
 import { Mastery } from "@/components/CVTabs/constants";
 import type { MasteryLevel } from "@/types/types";
 
-import { redInputSx } from "../constants";
+import { MenuPropsSx, redInputSx } from "../constants";
 
 interface Props {
     editOpen: boolean;
@@ -33,6 +33,7 @@ export const EditSkillDialog: React.FC<Props> = ({
                     label="Mastery"
                     value={selectedMastery}
                     onChange={(e) => setSelectedMastery(e.target.value as MasteryLevel)}
+                    MenuProps={MenuPropsSx}
                 >
                     {Mastery.map(level => (
                         <MenuItem key={level} value={level}>{level}</MenuItem>

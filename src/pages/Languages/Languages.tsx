@@ -16,10 +16,16 @@ import {
     Select,
     Typography,
 } from "@mui/material";
+import { Trash2 } from "lucide-react";
+import { useParams } from "react-router-dom";
 
+import { MenuPropsSx, redInputSx } from "@/components/constants";
+import { useAuth } from "@/hooks/useAuth";
 import { useProfileLang } from "@/hooks/useProfileLang";
 
 export const Languages = () => {
+    const { id } = useParams();
+    const { id: userId, role: userRole } = useAuth()
     const { langsLoading,
         profsLoading,
         langsData,
@@ -40,7 +46,7 @@ export const Languages = () => {
         selectedProficiency,
         setSelectedProficiency,
         handleSave
-    } = useProfileLang();
+    } = useProfileLang({ id: id || '' });
     if (langsLoading || profsLoading) return <CircularProgress />;
     if (!langsData || !profsData) return <Typography color="error">Failed to load data</Typography>;
 
@@ -78,7 +84,7 @@ export const Languages = () => {
                 ))}
             </List>
 
-            <Box mt={2} display="flex" justifyContent='space-between' gap={2}>
+            {id === userId || userRole === 'Admin' ? <Box mt={2} display="flex" justifyContent='space-between' gap={2}>
                 <Button sx={{
                     color: 'rgb(198, 48, 49)'
                 }} onClick={handleOpenAddDialog}>Add Language</Button>
@@ -87,10 +93,11 @@ export const Languages = () => {
                     <Box display="flex" gap={2}>
                         <Button
                             color="error"
+                            sx={{ gap: '5px' }}
                             onClick={deleting ? handleDelete : handleToggleDeleteMode}
                             disabled={deleting && selectedForDelete.length === 0}
                         >
-                            {deleting ? "Delete Selected" : "Delete Languages"}
+                            <Trash2 width={20} height={20} />{deleting ? "Delete Selected" : "Delete Languages"}
                         </Button>
                         {deleting && (
                             <Button variant="text" sx={{ color: '#C63031' }} onClick={handleToggleDeleteMode}>
@@ -99,7 +106,7 @@ export const Languages = () => {
                         )}
                     </Box>
                 )}
-            </Box>
+            </Box> : null}
 
 
             <Dialog open={dialogOpen} onClose={handleDialogClose} fullWidth maxWidth="sm">
@@ -107,12 +114,7 @@ export const Languages = () => {
                 <DialogContent>
                     <FormControl fullWidth sx={{
                         mt: 2,
-                        '& .MuiInputLabel-root.Mui-focused': {
-                            color: 'rgb(198, 48, 49)',
-                        },
-                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgb(198, 48, 49)',
-                        },
+                        ...redInputSx,
                     }
                     }>
                         <InputLabel id="select-language-label">Language</InputLabel>
@@ -122,6 +124,7 @@ export const Languages = () => {
                             label="Language"
                             onChange={(e) => setSelectedLangId(e.target.value)}
                             disabled={!!editingLanguageName}
+                            MenuProps={MenuPropsSx}
                         >
                             {langsData.languages.map((lang) => (
                                 <MenuItem key={lang.id} value={lang.id}>
@@ -133,12 +136,7 @@ export const Languages = () => {
 
                     <FormControl fullWidth sx={{
                         mt: 2,
-                        '& .MuiInputLabel-root.Mui-focused': {
-                            color: 'rgb(198, 48, 49)',
-                        },
-                        '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgb(198, 48, 49)',
-                        },
+                        ...redInputSx,
                     }}>
                         <InputLabel id="select-proficiency-label">Proficiency</InputLabel>
                         <Select
@@ -146,19 +144,7 @@ export const Languages = () => {
                             value={selectedProficiency}
                             label="Proficiency"
                             onChange={(e) => setSelectedProficiency(e.target.value)}
-                            MenuProps={{
-                                PaperProps: {
-                                    sx: {
-                                        '& .MuiMenuItem-root.Mui-selected': {
-                                            backgroundColor: 'rgba(198, 48, 49, 0.1)',
-                                            color: 'rgb(198, 48, 49)',
-                                            '&:hover': {
-                                                backgroundColor: 'rgba(198, 48, 49, 0.2)',
-                                            },
-                                        },
-                                    },
-                                },
-                            }}
+                            MenuProps={MenuPropsSx}
                         >
                             {profsData.__type.enumValues.map((p) => (
                                 <MenuItem key={p.name} value={p.name}>

@@ -68,7 +68,7 @@ export const CVPage = () => {
                         cvId={cv.id}
                     />
                 }
-                skills={<SkillsTab skills={cv.skills} cvId={cv.id} />}
+                skills={<SkillsTab initialSkills={cv.skills} cvId={cv.id} />}
                 projects={<ProjectsTab projects={cv.projects} cvId={cv.id} />}
                 preview={<PreviewTab cvName={cv.name} description={cv.description} />}
             />

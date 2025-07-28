@@ -14,7 +14,7 @@ import {
 import { Mastery } from "@/components/CVTabs/constants";
 import type { MasteryLevel, Skill } from "@/types/types";
 
-import { redInputSx } from "../constants";
+import { MenuPropsSx, redInputSx } from "../constants";
 
 interface Props {
     open: boolean;
@@ -46,13 +46,7 @@ export const AddSkillDialog: React.FC<Props> = ({
                     label="Skill"
                     value={selectedSkillId}
                     onChange={(e) => setSelectedSkillId(e.target.value)}
-                    MenuProps={{
-                        PaperProps: {
-                            style: {
-                                maxHeight: 300,
-                            },
-                        },
-                    }}
+                    MenuProps={MenuPropsSx}
                 >
                     {Object.entries(groupedSelectSkills).map(([category, skills]) => [
                         <ListSubheader key={category}>{category}</ListSubheader>,
@@ -71,6 +65,7 @@ export const AddSkillDialog: React.FC<Props> = ({
                     label="Mastery"
                     value={selectedMastery}
                     onChange={(e) => setSelectedMastery(e.target.value as MasteryLevel)}
+                    MenuProps={MenuPropsSx}
                 >
                     {Mastery.map((level) => (
                         <MenuItem key={level} value={level}>
@@ -86,7 +81,7 @@ export const AddSkillDialog: React.FC<Props> = ({
                 variant="contained"
                 onClick={() => { handleAddSkill(); setSelectedMastery(''); setSelectedSkillId(''); }}
                 disabled={!selectedSkillId || !selectedMastery}
-                sx={{ backgroundColor: "transparent", color: '#C63031', "&:hover": { backgroundColor: "#a82525" } }}
+                sx={{ boxShadow: 'none', backgroundColor: "transparent", color: '#C63031', "&:hover": { backgroundColor: "#a82525" } }}
             >
                 Add
             </Button>

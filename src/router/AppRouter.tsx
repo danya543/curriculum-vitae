@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import { CVs } from '@/components/CVs/CVs';
 import { Login } from '@/pages/Auth/Login';
 import { Register } from '@/pages/Auth/Register';
 import { AuthLayout } from '@/pages/AuthLayout/AuthLayout';
 import { CVPage } from '@/pages/CV/CV';
+import { CVs } from '@/pages/CVs/CVs';
 import { ForgotPassword } from '@/pages/ForgotPassword/ForgotPassword';
 import { Languages } from '@/pages/Languages/Languages';
 import { MainLayout } from '@/pages/MainLayout/MainLayout';

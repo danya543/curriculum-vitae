@@ -8,6 +8,10 @@ export const GET_CVS = gql`
       name
       education
       description
+      user {
+        id
+        email
+      }
       languages {
         name
         proficiency

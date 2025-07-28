@@ -9,7 +9,7 @@ import { GET_SKILLS } from "@/api/queries/getSkills";
 import type { MasteryLevel, Skill, SkillCategory, Skills, SkillsTabProps } from "@/types/types";
 import { useAlert } from "@/ui/Alert/useAlert";
 
-export const useSkillsTab = ({ skills: initialSkills, cvId }: SkillsTabProps) => {
+export const useSkillsTab = ({ initialSkills, cvId }: SkillsTabProps) => {
     const { showAlert } = useAlert();
     const [skills, setSkills] = useState<Skill[]>(initialSkills);
     const [open, setOpen] = useState(false);
@@ -67,6 +67,11 @@ export const useSkillsTab = ({ skills: initialSkills, cvId }: SkillsTabProps) =>
     const handleAddSkill = async () => {
         const skill = skillData?.skills.find(s => s.id === selectedSkillId);
         if (!skill || !selectedMastery) return;
+        const alreadyExist = skills.some(s => s.name === skill.name)
+        if (alreadyExist) {
+            showAlert({ type: 'error', message: 'Skill already existed' });
+            return
+        }
         try {
             const { data } = await addCvSkill({
                 variables: {

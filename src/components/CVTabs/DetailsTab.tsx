@@ -12,6 +12,8 @@ import { UPDATE_CV } from "@/api/mutations/updCV";
 import type { DetailsTabProps } from "@/types/types";
 import { useAlert } from "@/ui/Alert/useAlert";
 
+import { redInputSx } from "../constants";
+
 export const DetailsTab: React.FC<DetailsTabProps> = ({
     cvId,
     name,
@@ -61,18 +63,21 @@ export const DetailsTab: React.FC<DetailsTabProps> = ({
                 <TextField
                     label="Name"
                     value={form.name}
+                    sx={redInputSx}
                     onChange={(e) => handleChange("name", e.target.value)}
                 />
                 <TextField
                     label="Description"
                     multiline
                     minRows={3}
+                    sx={redInputSx}
                     value={form.description}
                     onChange={(e) => handleChange("description", e.target.value)}
                 />
                 <TextField
                     label="Education"
                     value={form.education}
+                    sx={redInputSx}
                     onChange={(e) => handleChange("education", e.target.value)}
                 />
                 <Typography variant="caption" color="text.secondary">
@@ -83,6 +88,7 @@ export const DetailsTab: React.FC<DetailsTabProps> = ({
             <Button
                 variant="contained"
                 onClick={handleUpdate}
+                sx={{ background: '#c63031' }}
                 disabled={!isChanged || loading}
             >
                 {loading ? "Updating..." : "Update"}

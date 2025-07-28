@@ -19,3 +19,18 @@ export const redInputSx = {
         '&.Mui-focused fieldset': { borderColor: '#C63031' },
     },
 };
+
+export const MenuPropsSx = {
+    PaperProps: {
+        style: { maxHeight: 300, },
+        sx: {
+            '& .MuiMenuItem-root.Mui-selected': {
+                backgroundColor: 'rgba(198, 48, 49, 0.1)',
+                color: 'rgb(198, 48, 49)',
+                '&:hover': {
+                    backgroundColor: 'rgba(198, 48, 49, 0.2)',
+                },
+            },
+        },
+    },
+}

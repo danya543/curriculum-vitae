@@ -7,7 +7,6 @@ import { UPDATE_PROFILE_SKILL } from "@/api/mutations/updProfileSkill";
 import { GET_PROFILE_INFO } from "@/api/queries/getProfileLangs";
 import { GET_SKILL_CATEGORIES } from "@/api/queries/getSkillCategories";
 import { GET_SKILLS } from "@/api/queries/getSkills";
-import { useAuth } from "@/hooks/useAuth";
 import type { MasteryLevel, Skill, Skills } from "@/types/types";
 import { useAlert } from "@/ui/Alert/useAlert";
 
@@ -15,8 +14,7 @@ type ProfileSkills = {
     profile: { skills: Skill[] }
 }
 
-export const useProfileSkills = () => {
-    const { id } = useAuth();
+export const useProfileSkills = ({ id }: { id: string }) => {
     const { showAlert } = useAlert();
 
     const { data: skillsData, loading: skillsLoading, error: skillsError } = useQuery<Skills>(GET_SKILLS);

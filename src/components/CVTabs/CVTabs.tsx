@@ -45,7 +45,20 @@ export const CVTabs: React.FC<CVTabsProps> = ({
 
     return (
         <>
-            <Tabs value={value} onChange={handleChange} aria-label="CV tabs">
+            <Tabs
+                value={value}
+                onChange={handleChange}
+                sx={{
+                    '& .MuiTabs-indicator': {
+                        backgroundColor: 'rgb(198, 48, 49)',
+                    },
+                    '& .MuiTab-root': {
+                        '&.Mui-selected': {
+                            color: 'rgb(198, 48, 49)',
+                        },
+                    },
+                }}
+                aria-label="CV tabs">
                 <Tab label="Details" id="cv-tab-0" aria-controls="cv-tabpanel-0" />
                 <Tab label="Skills" id="cv-tab-1" aria-controls="cv-tabpanel-1" />
                 <Tab label="Projects" id="cv-tab-2" aria-controls="cv-tabpanel-2" />

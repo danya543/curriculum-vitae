@@ -10,7 +10,7 @@ import {
 import { GET_DEPARTMENTS } from "@/api/queries/getDepartments";
 import type { DepartmentsData, DepartmentsProps } from "@/types/types";
 
-import { redInputSx } from "../constants";
+import { MenuPropsSx, redInputSx } from "../constants";
 
 export const Departments = ({ department, onChange, disabled }: DepartmentsProps) => {
     const { data, loading, error } = useQuery<DepartmentsData>(GET_DEPARTMENTS);
@@ -33,19 +33,7 @@ export const Departments = ({ department, onChange, disabled }: DepartmentsProps
                 label="Department"
                 onChange={handleChange}
                 disabled={disabled}
-                MenuProps={{
-                    PaperProps: {
-                        sx: {
-                            '& .MuiMenuItem-root.Mui-selected': {
-                                backgroundColor: 'rgba(198, 48, 49, 0.1)',
-                                color: 'rgb(198, 48, 49)',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(198, 48, 49, 0.2)',
-                                },
-                            },
-                        },
-                    },
-                }}>
+                MenuProps={MenuPropsSx}>
                 {data?.departments.map(dep => (
                     <MenuItem key={dep.id} value={dep.name}>
                         {dep.name}

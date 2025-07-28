@@ -21,7 +21,7 @@ import { GET_DEPARTMENTS } from '@/api/queries/getDepartments';
 import { GET_POSITIONS } from '@/api/queries/getPosition';
 import { useAlert } from '@/ui/Alert/useAlert';
 
-import { redInputSx } from '../constants';
+import { MenuPropsSx, redInputSx } from '../constants';
 
 type Props = {
     open: boolean;
@@ -183,19 +183,7 @@ export const CreateUserModal = ({ open, onClose, onCreated }: Props) => {
                                 value={selectedDepName}
                                 label="Department"
                                 onChange={handleDepartmentChange}
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
-                                            '& .MuiMenuItem-root.Mui-selected': {
-                                                backgroundColor: 'rgba(198, 48, 49, 0.1)',
-                                                color: '#C63031',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(198, 48, 49, 0.2)',
-                                                },
-                                            },
-                                        },
-                                    },
-                                }}
+                                MenuProps={MenuPropsSx}
                             >
                                 {depData?.departments.map((dep) => (
                                     <MenuItem key={dep.id} value={dep.name}>
@@ -211,19 +199,7 @@ export const CreateUserModal = ({ open, onClose, onCreated }: Props) => {
                                 value={selectedPosName}
                                 label="Position"
                                 onChange={handlePositionChange}
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
-                                            '& .MuiMenuItem-root.Mui-selected': {
-                                                backgroundColor: 'rgba(198, 48, 49, 0.1)',
-                                                color: '#C63031',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(198, 48, 49, 0.2)',
-                                                },
-                                            },
-                                        },
-                                    },
-                                }}
+                                MenuProps={MenuPropsSx}
                             >
                                 {posData?.positions.map((pos) => (
                                     <MenuItem key={pos.id} value={pos.name}>
@@ -235,7 +211,7 @@ export const CreateUserModal = ({ open, onClose, onCreated }: Props) => {
 
                         <FormControl fullWidth required sx={redInputSx}>
                             <InputLabel>Role</InputLabel>
-                            <Select value={form.role} label="Role" onChange={handleRoleChange}>
+                            <Select value={form.role} label="Role" onChange={handleRoleChange} MenuProps={MenuPropsSx}>
                                 <MenuItem value="Employee">Employee</MenuItem>
                                 <MenuItem value="Admin">Admin</MenuItem>
                             </Select>

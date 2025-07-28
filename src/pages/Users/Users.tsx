@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react'
 
 import { GET_USERS } from '@/api/queries/getUsers'
 import type { GetUsersData } from '@/api/types'
+import { redInputSx } from '@/components/constants'
 import { CreateUserModal } from '@/components/CreateUserModal/CreateUserModal'
 import { UserCard } from '@/components/UserCard/UserCard'
 import { useAuth } from '@/hooks/useAuth'
@@ -105,11 +106,7 @@ export const UsersPage = () => {
                     mb: 3,
                     borderRadius: '15px',
                     width: '400px',
-                    '& label.Mui-focused': { color: 'rgb(198, 48, 49)' },
-                    '& .MuiInput-underline:after': { borderBottomColor: 'rgb(198, 48, 49)' },
-                    '& .MuiOutlinedInput-root': {
-                        '&.Mui-focused fieldset': { borderColor: 'rgb(198, 48, 49)' },
-                    },
+                    ...redInputSx
                 }}
             />
 

@@ -65,12 +65,14 @@ export const UserCard: FC<UserCardProps> = ({
             elevation={3}
             sx={{
                 background: 'transparent',
+                boxShadow: 'none',
                 borderBottom: '1px solid #515151',
                 display: 'flex',
                 alignItems: 'center',
                 padding: 2,
                 width: '100%',
                 boxSizing: 'border-box',
+                borderRadius: '0',
                 '&:hover': {
                     backgroundColor: 'action.hover',
                 },

@@ -1,13 +1,16 @@
-import { Box, Button, CircularProgress, List, Typography, useTheme } from "@mui/material";
+import { Box, Button, CircularProgress, List, Typography } from "@mui/material";
+import { Trash2 } from "lucide-react";
+import { useParams } from "react-router-dom";
 
 import { SkillCard } from "@/components/SkillCard/SkillCard";
 import { AddSkillDialog } from "@/components/SkillDialog/Add";
 import { EditSkillDialog } from "@/components/SkillDialog/Edit";
+import { useAuth } from "@/hooks/useAuth";
 import { useProfileSkills } from "@/hooks/useProfileSkills";
 
 export const ProfileSkills = () => {
-    const theme = useTheme();
-
+    const { id } = useParams();
+    const { id: userId, role: userRole } = useAuth()
     const {
         skillsLoading,
         skillsError,
@@ -29,7 +32,7 @@ export const ProfileSkills = () => {
         handleUpdateSkill,
         handleDelete,
         handleEditClick,
-    } = useProfileSkills();
+    } = useProfileSkills({ id: id || '' });
 
     if (skillsLoading) return <CircularProgress />;
     if (skillsError) return <Typography color="error">Failed to load skills</Typography>;
@@ -71,9 +74,9 @@ export const ProfileSkills = () => {
                 ))
             )}
 
-            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: '10px', mb: 2 }}>
+            {id === userId || userRole === 'Admin' ? <Box sx={{ display: "flex", justifyContent: "flex-end", gap: '10px', mb: 2 }}>
                 <Button
-                    sx={{ background: 'transparent', color: theme.palette.text.secondary, '&:hover': { backgroundColor: 'action.hover' } }}
+                    sx={{ background: 'transparent', color: '#C63031', '&:hover': { backgroundColor: 'action.hover' } }}
                     onClick={() => setAddOpen(true)}
                 >
                     Add Skill
@@ -95,13 +98,13 @@ export const ProfileSkills = () => {
                     </Box>
                 ) : Object.entries(groupedSkills || {}).length > 0 && (
                     <Button
-                        sx={{ color: '#C63031', '&:hover': { backgroundColor: 'action.hover' } }}
+                        sx={{ color: '#C63031', gap: '5px', '&:hover': { backgroundColor: 'action.hover' } }}
                         onClick={() => setDeleteMode(true)}
                     >
-                        Delete Skill
+                        <Trash2 width={20} height={20} />Delete Skill
                     </Button>
                 )}
-            </Box>
+            </Box> : null}
 
             <AddSkillDialog
                 open={addOpen}
