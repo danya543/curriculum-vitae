@@ -49,7 +49,7 @@ export const CVPage = () => {
 
     const breadcrumbs = [
         { label: "CVs", to: "/cvs" },
-        { label: cv.name, to: `/cvs/${cv.id}` },
+        { label: cv.name },
         { label: tabNames[activeTab] },
     ];
 

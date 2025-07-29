@@ -3,6 +3,7 @@ import {
     Button, Dialog, DialogActions, DialogContent, DialogTitle,
     Stack, TextField
 } from '@mui/material';
+import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 import { CREATE_CV } from '@/api/mutations/createCV';
@@ -61,7 +62,11 @@ export const AddCV = ({ onCreateSuccess }: { onCreateSuccess: (cv: Cv) => void; 
 
     return (
         <>
-            <Button sx={{ color: '#c63031' }} onClick={handleOpen}>Add new CV</Button>
+            <Button sx={{ color: '#c63031', display: 'flex', alignItems: 'center' }}
+                onClick={handleOpen}>
+                <Plus style={{ width: 20, height: 20 }} />
+                Create CV
+            </Button>
 
             <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
                 <DialogTitle>Create New CV</DialogTitle>

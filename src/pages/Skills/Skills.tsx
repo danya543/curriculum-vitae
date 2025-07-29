@@ -1,6 +1,7 @@
 import { Box, Button, CircularProgress, List, Typography } from "@mui/material";
 import { Trash2 } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
 
 import { SkillCard } from "@/components/SkillCard/SkillCard";
 import { AddSkillDialog } from "@/components/SkillDialog/Add";
@@ -9,8 +10,19 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfileSkills } from "@/hooks/useProfileSkills";
 
 export const ProfileSkills = () => {
-    const { id } = useParams();
+    const location = useLocation();
+    const [id, setId] = useState<string | null>(null)
+    const { paramsId } = useParams();
     const { id: userId, role: userRole } = useAuth()
+
+    useEffect(() => {
+        if (location.pathname.includes('/users') && paramsId) {
+            setId(paramsId);
+        } else if (userId) {
+            setId(userId);
+        }
+    }, [location.pathname, paramsId, userId]);
+
     const {
         skillsLoading,
         skillsError,
@@ -74,7 +86,7 @@ export const ProfileSkills = () => {
                 ))
             )}
 
-            {id === userId || userRole === 'Admin' ? <Box sx={{ display: "flex", justifyContent: "flex-end", gap: '10px', mb: 2 }}>
+            {(!paramsId && userId) || paramsId === userId || userRole === 'Admin' ? <Box sx={{ display: "flex", justifyContent: "flex-end", gap: '10px', mb: 2 }}>
                 <Button
                     sx={{ background: 'transparent', color: '#C63031', '&:hover': { backgroundColor: 'action.hover' } }}
                     onClick={() => setAddOpen(true)}

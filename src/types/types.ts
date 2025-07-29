@@ -1,3 +1,5 @@
+import type { CvProject } from "cv-graphql";
+
 import type { User } from "@/api/types";
 import type { Mastery } from "@/components/CVTabs/constants";
 
@@ -112,7 +114,7 @@ export interface Project {
 }
 
 export interface ProjectsTabProps {
-    projects: Project[];
+    projects: CvProject[];
     cvId: number;
 }
 

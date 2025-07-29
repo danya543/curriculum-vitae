@@ -17,15 +17,27 @@ import {
     Typography,
 } from "@mui/material";
 import { Trash2 } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
 
 import { MenuPropsSx, redInputSx } from "@/components/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfileLang } from "@/hooks/useProfileLang";
 
 export const Languages = () => {
-    const { id } = useParams();
+    const { paramsId } = useParams();
     const { id: userId, role: userRole } = useAuth()
+    const location = useLocation();
+    const [id, setId] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (location.pathname.includes('/users') && paramsId) {
+            setId(paramsId);
+        } else if (userId) {
+            setId(userId);
+        }
+    }, [location.pathname, paramsId, userId]);
+
     const { langsLoading,
         profsLoading,
         langsData,
@@ -84,29 +96,30 @@ export const Languages = () => {
                 ))}
             </List>
 
-            {id === userId || userRole === 'Admin' ? <Box mt={2} display="flex" justifyContent='space-between' gap={2}>
-                <Button sx={{
-                    color: 'rgb(198, 48, 49)'
-                }} onClick={handleOpenAddDialog}>Add Language</Button>
+            {(!paramsId && userId) || paramsId === userId || userRole === 'Admin' ?
+                <Box mt={2} display="flex" justifyContent='end' gap={2}>
+                    <Button sx={{
+                        color: 'rgb(198, 48, 49)'
+                    }} onClick={handleOpenAddDialog}>Add Language</Button>
 
-                {profileLanguages.length > 0 && (
-                    <Box display="flex" gap={2}>
-                        <Button
-                            color="error"
-                            sx={{ gap: '5px' }}
-                            onClick={deleting ? handleDelete : handleToggleDeleteMode}
-                            disabled={deleting && selectedForDelete.length === 0}
-                        >
-                            <Trash2 width={20} height={20} />{deleting ? "Delete Selected" : "Delete Languages"}
-                        </Button>
-                        {deleting && (
-                            <Button variant="text" sx={{ color: '#C63031' }} onClick={handleToggleDeleteMode}>
-                                Cancel
+                    {profileLanguages.length > 0 && (
+                        <Box display="flex" gap={2}>
+                            <Button
+                                color="error"
+                                sx={{ gap: '5px' }}
+                                onClick={deleting ? handleDelete : handleToggleDeleteMode}
+                                disabled={deleting && selectedForDelete.length === 0}
+                            >
+                                <Trash2 width={20} height={20} />{deleting ? "Delete Selected" : "Delete Languages"}
                             </Button>
-                        )}
-                    </Box>
-                )}
-            </Box> : null}
+                            {deleting && (
+                                <Button variant="text" sx={{ color: '#C63031' }} onClick={handleToggleDeleteMode}>
+                                    Cancel
+                                </Button>
+                            )}
+                        </Box>
+                    )}
+                </Box> : null}
 
 
             <Dialog open={dialogOpen} onClose={handleDialogClose} fullWidth maxWidth="sm">

@@ -63,7 +63,6 @@ export const CvCard: React.FC<CvCardProps> = ({ cv, onClick, onDeleteSuccess, sh
                 backgroundColor: "transparent",
             }}
             onClick={() => onClick(cv.id)}
-            role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === "Enter" && onClick(cv.id)}
         >

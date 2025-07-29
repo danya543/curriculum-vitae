@@ -1,5 +1,4 @@
 import { useQuery } from '@apollo/client'
-import { ArrowDropDown, ArrowDropUp } from '@mui/icons-material'
 import { Box, Button, List, ListItem, TextField, Typography } from '@mui/material'
 import { useMemo, useState } from 'react'
 
@@ -7,28 +6,38 @@ import { GET_USERS } from '@/api/queries/getUsers'
 import type { GetUsersData } from '@/api/types'
 import { redInputSx } from '@/components/constants'
 import { CreateUserModal } from '@/components/CreateUserModal/CreateUserModal'
+import { SortHeader } from '@/components/SortHeader/SortHeader'
 import { UserCard } from '@/components/UserCard/UserCard'
 import { useAuth } from '@/hooks/useAuth'
 
-type SortKey = 'firstName' | 'lastName' | 'email' | 'department' | 'position'
+const columns = Array.from([
+    { key: "firstName", label: "First name" },
+    { key: "lastName", label: "Last name" },
+    { key: "email", label: "Email" },
+    { key: "department", label: "Department" },
+    { key: "position", label: "Position" },
+] as const);
+
+type SortKey = (typeof columns)[number]["key"];
+type SortOrder = 'asc' | 'desc'
 
 export const UsersPage = () => {
     const { data, loading, error, refetch } = useQuery<GetUsersData>(GET_USERS)
     const [search, setSearch] = useState('')
-    const [sortKey, setSortKey] = useState<SortKey | null>(null)
-    const [sortAsc, setSortAsc] = useState(true)
+    const [sortKey, setSortKey] = useState<SortKey>('firstName')
+    const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
     const [openModal, setOpenModal] = useState(false);
 
     const { id: currentUserId } = useAuth()
 
     const handleSort = (key: SortKey) => {
         if (sortKey === key) {
-            setSortAsc(prev => !prev)
+            setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
         } else {
-            setSortKey(key)
-            setSortAsc(true)
+            setSortKey(key);
+            setSortOrder("asc");
         }
-    }
+    };
 
     const filteredUsers = useMemo(() => {
         if (!data?.users) return []
@@ -65,7 +74,7 @@ export const UsersPage = () => {
                 if (!aVal) return 1
                 if (!bVal) return -1
 
-                return sortAsc
+                return sortOrder === 'asc'
                     ? aVal.localeCompare(bVal)
                     : bVal.localeCompare(aVal)
             })
@@ -78,15 +87,10 @@ export const UsersPage = () => {
             : filtered
 
         return result
-    }, [data, search, sortKey, sortAsc, currentUserId])
+    }, [data, search, sortKey, sortOrder, currentUserId])
 
     if (loading) return <Typography>Loading...</Typography>
     if (error) return <Typography color="error">Error: {error.message}</Typography>
-
-    const renderSortArrow = (key: SortKey) => {
-        if (sortKey !== key) return null
-        return sortAsc ? <ArrowDropUp fontSize="small" /> : <ArrowDropDown fontSize="small" />
-    }
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -113,29 +117,8 @@ export const UsersPage = () => {
             {filteredUsers.length === 0 ? (
                 <Typography>User not found.</Typography>
             ) : (
-                <section>
-                    <Box sx={{
-                        borderBottom: '1px solid #515151',
-                        width: '100%', display: 'flex', justifyContent: 'space-between', px: 2, pb: 1, fontSize: '14px', fontWeight: 'bold'
-                    }}>
-                        <Box sx={{ width: '8%' }}></Box>
-                        <Box onClick={() => handleSort('firstName')} sx={{ cursor: 'pointer', width: '10%' }}>
-                            First Name {renderSortArrow('firstName')}
-                        </Box>
-                        <Box onClick={() => handleSort('lastName')} sx={{ cursor: 'pointer', width: '10%' }}>
-                            Last Name {renderSortArrow('lastName')}
-                        </Box>
-                        <Box onClick={() => handleSort('email')} sx={{ cursor: 'pointer', width: '20%' }}>
-                            Email {renderSortArrow('email')}
-                        </Box>
-                        <Box onClick={() => handleSort('department')} sx={{ cursor: 'pointer', width: '20%' }}>
-                            Department {renderSortArrow('department')}
-                        </Box>
-                        <Box onClick={() => handleSort('position')} sx={{ cursor: 'pointer', width: '14%' }}>
-                            Position {renderSortArrow('position')}
-                        </Box>
-                        <Box sx={{ width: '10%' }}></Box>
-                    </Box>
+                <Box component={'section'} sx={{ '>div:nth-child(1)': { ml: '40px' } }}>
+                    <SortHeader columns={columns} sortKey={sortKey} sortOrder={sortOrder} onSort={handleSort} />
 
                     <List sx={{ display: 'flex', flexDirection: 'column', p: 0 }}>
                         {filteredUsers.map(user => (
@@ -147,7 +130,7 @@ export const UsersPage = () => {
                             </ListItem>
                         ))}
                     </List>
-                </section>
+                </Box>
             )}
             <CreateUserModal open={openModal} onClose={() => setOpenModal(false)} onCreated={refetch} />
         </Box>

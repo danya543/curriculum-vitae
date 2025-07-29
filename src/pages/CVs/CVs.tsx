@@ -1,5 +1,4 @@
 import { useQuery } from "@apollo/client";
-import { ArrowDownward, ArrowUpward } from "@mui/icons-material";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import {
     Box,
@@ -13,13 +12,20 @@ import { useNavigate } from "react-router-dom";
 import { GET_CVS } from "@/api/queries/getCVs";
 import { CvCard } from "@/components/CVCard/CVCard";
 import { BreadcrumbsNav } from "@/components/Nav/Nav";
+import { SortHeader } from "@/components/SortHeader/SortHeader";
 import { useAuth } from "@/hooks/useAuth";
 import type { Cv, CvsData } from "@/types/types";
 import { useAlert } from "@/ui/Alert/useAlert";
 
 import { AddCV } from "./AddCV";
 
-type SortKey = "name" | "education" | "employeeName";
+const columns = Array.from([
+    { key: "name", label: "Name" },
+    { key: "education", label: "Education" },
+    { key: "employeeName", label: "Employee" },
+] as const);
+
+type SortKey = (typeof columns)[number]["key"];
 type SortOrder = "asc" | "desc";
 
 export const CVs = () => {
@@ -125,52 +131,9 @@ export const CVs = () => {
                 )}
                 <AddCV onCreateSuccess={handleAddCV} />
             </Box>
-            <Box
-                sx={{
-                    width: '95%',
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr 1fr",
-                    gap: 2,
-                    px: 2,
-                    py: 1,
-                    backgroundColor: "#f5f5f5",
-                    borderRadius: 2,
-                    fontWeight: "bold",
-                    color: "text.secondary",
-                    mb: 1,
-                    cursor: "pointer",
-                    userSelect: "none",
-                }}
-            >
-                {["name", "education", "employeeName"].map((key) => {
-                    const label = {
-                        name: "Name",
-                        education: "Education",
-                        employeeName: "Employee",
-                    }[key as SortKey];
-                    const isActive = sortKey === key;
 
-                    return (
-                        <Box
-                            key={key}
-                            onClick={() => handleSort(key as SortKey)}
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 0.5,
-                            }}
-                        >
-                            {label}
-                            {isActive &&
-                                (sortOrder === "asc" ? (
-                                    <ArrowUpward sx={{ fontSize: 16 }} />
-                                ) : (
-                                    <ArrowDownward sx={{ fontSize: 16 }} />
-                                ))}
-                        </Box>
-                    );
-                })}
-            </Box>
+            <SortHeader columns={columns} sortKey={sortKey} sortOrder={sortOrder} onSort={handleSort} />
+
             {sortedCvs.length > 0 ? (
                 sortedCvs.map((cv) => (
                     <CvCard
