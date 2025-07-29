@@ -70,7 +70,7 @@ export const CVPage = () => {
                 }
                 skills={<SkillsTab initialSkills={cv.skills} cvId={cv.id} />}
                 projects={<ProjectsTab projects={cv.projects} cvId={cv.id} />}
-                preview={<PreviewTab cvName={cv.name} description={cv.description} />}
+                preview={<PreviewTab cv={cv} />}
             />
         </Box>
     );

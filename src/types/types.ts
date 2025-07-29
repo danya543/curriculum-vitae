@@ -34,15 +34,16 @@ export interface SkillsTabProps {
 }
 
 type ProjectInput = {
+    id: string;
     name: string;
     internal_name: string;
     description: string;
     domain: string;
     start_date: string;
     end_date: string;
-    environment: string;
-    roles: string;
-    responsibilities: string;
+    environment: [string];
+    roles: [string];
+    responsibilities: [string];
 };
 
 export type CvFormState = {
@@ -58,7 +59,7 @@ export type CvFormState = {
 export interface Cv extends CvFormState {
     id: number;
     created_at: string;
-    user: { email: string }
+    user: { email: string, position_name: string, department_name: string, profile: { full_name: string } }
 }
 
 export interface CvsData {

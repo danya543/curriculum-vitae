@@ -8,6 +8,13 @@ export const GET_CV = gql`
       name
       education
       description
+      user{
+        department_name
+        position_name
+        profile {
+          full_name
+        }
+      }
       languages {
         name
         proficiency

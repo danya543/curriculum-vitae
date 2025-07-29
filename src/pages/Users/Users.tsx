@@ -28,7 +28,7 @@ export const UsersPage = () => {
     const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
     const [openModal, setOpenModal] = useState(false);
 
-    const { id: currentUserId } = useAuth()
+    const { id: currentUserId, role: userRole } = useAuth()
 
     const handleSort = (key: SortKey) => {
         if (sortKey === key) {
@@ -94,30 +94,31 @@ export const UsersPage = () => {
 
     return (
         <Box sx={{ width: '100%' }}>
-            {filteredUsers[0].role === 'Admin' && (
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-                    <Button variant="contained" onClick={() => setOpenModal(true)} sx={{ backgroundColor: 'rgb(198, 48, 49)' }}>
-                        Create User
-                    </Button>
-                </Box>
-            )}
-            <TextField
-                label="Find by username or email"
-                variant="outlined"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                sx={{
-                    mb: 3,
-                    borderRadius: '15px',
-                    width: '400px',
-                    ...redInputSx
-                }}
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
+                <TextField
+                    label="Find by username or email"
+                    variant="outlined"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    sx={{
+                        borderRadius: '15px',
+                        width: '400px',
+                        ...redInputSx
+                    }}
+                />
+                {userRole === 'Admin' && (
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button variant="contained" onClick={() => setOpenModal(true)} sx={{ backgroundColor: 'rgb(198, 48, 49)' }}>
+                            Create User
+                        </Button>
+                    </Box>
+                )}
+            </Box>
 
             {filteredUsers.length === 0 ? (
                 <Typography>User not found.</Typography>
             ) : (
-                <Box component={'section'} sx={{ '>div:nth-child(1)': { ml: '40px' } }}>
+                <Box component={'section'} sx={{ '>div:nth-child(1)': { m: '0 10%', width: '80%' } }}>
                     <SortHeader columns={columns} sortKey={sortKey} sortOrder={sortOrder} onSort={handleSort} />
 
                     <List sx={{ display: 'flex', flexDirection: 'column', p: 0 }}>

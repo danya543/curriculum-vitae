@@ -3,6 +3,7 @@ import {
     Dialog, DialogActions,
     DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select
 } from "@mui/material";
+import { useEffect, useState } from "react";
 
 import { Mastery } from "@/components/CVTabs/constants";
 import type { MasteryLevel } from "@/types/types";
@@ -23,29 +24,38 @@ export const EditSkillDialog: React.FC<Props> = ({
     selectedMastery,
     setSelectedMastery,
     handleUpdateSkill,
-}) => (
-    <Dialog open={editOpen} onClose={() => setEditOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>Edit Skill</DialogTitle>
-        <DialogContent>
-            <FormControl fullWidth required sx={{ mt: 2, ...redInputSx }}>
-                <InputLabel>Mastery</InputLabel>
-                <Select
-                    label="Mastery"
-                    value={selectedMastery}
-                    onChange={(e) => setSelectedMastery(e.target.value as MasteryLevel)}
-                    MenuProps={MenuPropsSx}
-                >
-                    {Mastery.map(level => (
-                        <MenuItem key={level} value={level}>{level}</MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-        </DialogContent>
-        <DialogActions>
-            <Button onClick={() => setEditOpen(false)}>Cancel</Button>
-            <Button variant="contained" onClick={handleUpdateSkill} disabled={!selectedMastery}>
-                Update
-            </Button>
-        </DialogActions>
-    </Dialog>
-);
+}) => {
+    const [initialMastery, setInitialMastery] = useState<MasteryLevel | "">("");
+
+    useEffect(() => {
+        if (editOpen) {
+            setInitialMastery(selectedMastery);
+        }
+    }, [editOpen]);
+    return (
+        <Dialog open={editOpen} onClose={() => setEditOpen(false)} fullWidth maxWidth="sm">
+            <DialogTitle>Edit Skill</DialogTitle>
+            <DialogContent>
+                <FormControl fullWidth required sx={{ mt: 2, ...redInputSx }}>
+                    <InputLabel>Mastery</InputLabel>
+                    <Select
+                        label="Mastery"
+                        value={selectedMastery}
+                        onChange={(e) => setSelectedMastery(e.target.value as MasteryLevel)}
+                        MenuProps={MenuPropsSx}
+                    >
+                        {Mastery.map(level => (
+                            <MenuItem key={level} value={level}>{level}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </DialogContent>
+            <DialogActions>
+                <Button sx={{ color: '#c63031' }} onClick={() => setEditOpen(false)}>Cancel</Button>
+                <Button sx={{ background: '#c63031' }} variant="contained" onClick={handleUpdateSkill} disabled={!selectedMastery || selectedMastery === initialMastery}>
+                    Update
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
