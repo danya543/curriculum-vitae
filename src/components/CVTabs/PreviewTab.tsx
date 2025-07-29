@@ -1,15 +1,34 @@
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { Box, Button, Divider, Stack, Typography } from "@mui/material";
-import React from "react";
+import React, { useMemo } from "react";
 
 import { EXPORT_PDF } from "@/api/mutations/exportPdf";
+import { GET_SKILL_CATEGORIES } from "@/api/queries/getSkillCategories";
 import type { Cv } from "@/types/types";
-
 interface PreviewTabProps {
     cv: Cv;
 }
 
 export const PreviewTab: React.FC<PreviewTabProps> = ({ cv }) => {
+    const { data: categoryData } = useQuery<{ skillCategories: { id: string; name: string }[] }>(GET_SKILL_CATEGORIES);
+
+    const categoryMap = useMemo(() => {
+        const map: Record<string, string> = {};
+        categoryData?.skillCategories.forEach(cat => {
+            map[cat.id] = cat.name;
+        });
+        return map;
+    }, [categoryData]);
+
+    const groupedSkills = useMemo(() => {
+        return cv.skills.reduce<Record<string, Cv["skills"]>>((acc, skill) => {
+            const category = categoryMap[skill.categoryId!] || "Other";
+            (acc[category] ??= []).push(skill);
+            return acc;
+        }, {});
+    }, [cv.skills, categoryMap]);
+
+
     const [exportPdf, { loading }] = useMutation(EXPORT_PDF);
     const handleExport = async () => {
         const htmlContent = document.getElementById("pdf-root")?.outerHTML;
@@ -55,11 +74,12 @@ export const PreviewTab: React.FC<PreviewTabProps> = ({ cv }) => {
         }
     };
 
+    const experience = (new Date().getTime() - Number(cv.created_at)) / (1000 * 60 * 60 * 24 * 365.25)
 
     return (
         <Box sx={{ px: 3, py: 2 }}>
             <div id="pdf-root">
-                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
                     <Typography variant="h4" fontWeight={600}>
                         {cv.user.profile.full_name}
                     </Typography>
@@ -83,71 +103,123 @@ export const PreviewTab: React.FC<PreviewTabProps> = ({ cv }) => {
 
                 <Divider sx={{ my: 2 }} />
 
-                <Stack direction={{ xs: "column", md: "row" }} spacing={4}>
-                    <Box sx={{ flex: 1 }}>
-                        <Typography variant="subtitle2" fontWeight={600}>Education</Typography>
-                        <Typography variant="body2" gutterBottom>{cv.education || "—"}</Typography>
+                <Stack spacing={2}>
+                    <Stack direction="row" gap={5}>
+                        <Box sx={{ flex: 2 }}>
+                            <Typography variant="subtitle2" fontWeight={600}>Education</Typography>
+                            <Typography variant="body2" gutterBottom>{cv.education || "—"}</Typography>
 
-                        <Typography variant="subtitle2" fontWeight={600}>Language proficiency</Typography>
-                        {cv.languages.map(lang => (
-                            <Typography key={lang.name} variant="body2">
-                                {lang.name} – {lang.proficiency}
-                            </Typography>
-                        ))}
-
-                        <Typography variant="subtitle2" fontWeight={600}>Domains</Typography>
-                        <Typography variant="body2" gutterBottom>{cv.projects.map(p => p.domain).filter(Boolean).join(', ')}</Typography>
-
-                        <Typography variant="subtitle2" fontWeight={600} sx={{ mt: 2 }}>Skills</Typography>
-                        {cv.skills.map(skill => (
-                            <Box key={skill.name} sx={{ mb: 0.5 }}>
-                                <Typography variant="body2">
-                                    {skill.name} – {skill.mastery}
+                            <Typography variant="subtitle2" fontWeight={600}>Language proficiency</Typography>
+                            {cv.languages.map(lang => (
+                                <Typography key={lang.name} variant="body2">
+                                    {lang.name} – {lang.proficiency}
                                 </Typography>
+                            ))}
+
+                            <Typography variant="subtitle2" fontWeight={600}>Domains</Typography>
+                            <Typography variant="body2" gutterBottom>
+                                {cv.projects.map(p => p.domain).filter(Boolean).join(', ')}
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ flex: 3, pl: 5, borderLeft: '1px solid #c63031' }}>
+                            <Typography variant="subtitle2" fontWeight={600}>CV Name</Typography>
+                            <Typography variant="body2" gutterBottom>{cv.name}</Typography>
+
+                            <Typography variant="subtitle2" fontWeight={600}>Description</Typography>
+                            <Typography variant="body2" paragraph>{cv.description || "No description provided."}</Typography>
+
+                            <Typography variant="subtitle2" fontWeight={600}>Skills</Typography>
+                            {Object.entries(groupedSkills).map(([category, skills]) => (
+                                <Box key={category} sx={{ mb: 1 }}>
+                                    <Typography variant="body2" fontWeight={600}>
+                                        {category}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ fontSize: 14 }}>
+                                        {skills.map(skill => skill.name).join(', ') + '.'}
+                                    </Typography>
+                                </Box>
+                            ))}
+                        </Box>
+                    </Stack>
+
+                    <Box>
+                        <Typography variant="h4" fontWeight={600} gutterBottom>Projects</Typography>
+                        {cv.projects.map((p) => (
+                            <Box key={p.id} sx={{ display: 'flex', flexDirection: 'row', gap: 5, mb: 5 }}>
+                                <Stack direction="column" flex={2}>
+                                    <Box >
+                                        <Typography sx={{ color: '#c63031' }} variant="body1" fontWeight={500}>{p.name}</Typography>
+                                    </Box>
+                                    <Box >
+                                        <Typography variant="body2" color="text.secondary">{p.description || "No description"}</Typography>
+                                    </Box>
+                                </Stack>
+
+                                <Stack flex={3} direction="column" sx={{ pl: 5, gap: '10px', borderLeft: '1px solid #c63031' }}>
+                                    <Box>
+                                        <Typography variant="subtitle2" fontWeight={600}>Project roles</Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {p.roles.length > 0 ? p.roles.join(',') : (cv.user.position_name || "No description")}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box>
+                                        <Typography variant="subtitle2" fontWeight={600}>Period</Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {p.start_date} - {p.end_date || 'Till now'}
+                                        </Typography>
+                                    </Box>
+
+                                    {p.responsibilities.length > 0 && <Box>
+                                        <Typography variant="subtitle2" fontWeight={600}>Responsibilities</Typography>
+                                        <ul style={{ paddingLeft: 15, margin: 0 }}>
+                                            {p.responsibilities.map((resp, idx) => (
+                                                <li key={idx}>
+                                                    <Typography variant="body2" color="text.secondary">{resp}</Typography>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </Box>}
+
+                                    {p.environment.length > 0 && <Box>
+                                        <Typography variant="subtitle2" fontWeight={600}>Environment</Typography>
+                                        <Typography variant="body2" color="text.secondary">{p.environment.join(', ')}.</Typography>
+                                    </Box>}
+                                </Stack>
                             </Box>
                         ))}
                     </Box>
 
-                    <Box sx={{ flex: 2 }}>
-                        <Typography variant="subtitle2" fontWeight={600} gutterBottom>
-                            Software Engineer with experience
-                        </Typography>
-                        <Typography variant="body2" paragraph>{cv.description || "No description provided."}</Typography>
+                    <Box sx={{ mt: 3 }}>
+                        <Typography variant="h4" fontWeight={600}>Professional skills</Typography>
 
-                        <Typography variant="h4" fontWeight={600} gutterBottom>Projects</Typography>
-                        {cv.projects.map((p) => (
-                            <Box key={p.id} sx={{ mb: 2 }}>
-                                <Typography sx={{ color: '#c63031' }} variant="body1" fontWeight={500}>{p.name}</Typography>
-                                <Typography variant="body2" color="text.secondary">{p.description || "No description"}</Typography>
+                        <Stack direction="row" sx={{ fontWeight: 600, borderBottom: '1px solid #c63031', pb: 1 }}>
+                            <Box sx={{ flex: 2 }}>Skill</Box>
+                            <Box sx={{ flex: 1 }}>Experience (years)</Box>
+                            <Box sx={{ flex: 1 }}>Last used</Box>
+                        </Stack>
 
-                                <Typography variant="subtitle2" fontWeight={600} gutterBottom>Project roles</Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {p.roles.length > 0 ? p.roles.join(',') : (cv.user.position_name || "No description")}
-                                </Typography>
-
-                                <Typography variant="subtitle2" fontWeight={600} gutterBottom>Period</Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {p.start_date} - {p.end_date || 'Till now'}
-                                </Typography>
-
-                                <Typography variant="subtitle2" fontWeight={600} gutterBottom>Responsibilities</Typography>
-                                <ul>
-                                    {p.responsibilities.map((resp, idx) => (
-                                        <li key={idx}>
-                                            <Typography variant="body2" color="text.secondary">{resp}</Typography>
-                                        </li>
-                                    ))}
-                                </ul>
-
-                                <Typography variant="subtitle2" fontWeight={600} gutterBottom>Environment</Typography>
-                                <Typography variant="body2" color="text.secondary">{p.environment.join(', ')}</Typography>
+                        {Object.entries(groupedSkills).map(([category, skills]) => (
+                            <Box key={category} sx={{ mt: 2, borderBottom: '1px solid #eee' }}>
+                                {skills.map((skill, index) => (
+                                    <Stack key={skill.name} direction="row" sx={{ alignItems: 'center', py: 0.5 }}>
+                                        <Box sx={{ flex: 1 }}>
+                                            {index === 0 &&
+                                                <Typography variant="subtitle2" sx={{ color: '#c63031' }} fontWeight={600}>
+                                                    {category}
+                                                </Typography>}
+                                        </Box>
+                                        <Box sx={{ flex: 1, pl: 2 }}>{skill.name}</Box>
+                                        <Box sx={{ flex: 1, textAlign: 'center' }}>{experience < 1 ? '<1' : Math.floor(experience)}{ }</Box>
+                                        <Box sx={{ flex: 1 }}> </Box>
+                                    </Stack>
+                                ))}
                             </Box>
                         ))}
-
-                        <Typography variant="h4" fontWeight={600} gutterBottom>Professional skills</Typography>
                     </Box>
                 </Stack>
             </div>
-        </Box>
+        </Box >
     );
 };

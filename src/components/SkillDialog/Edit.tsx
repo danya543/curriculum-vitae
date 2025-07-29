@@ -31,6 +31,7 @@ export const EditSkillDialog: React.FC<Props> = ({
         if (editOpen) {
             setInitialMastery(selectedMastery);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [editOpen]);
     return (
         <Dialog open={editOpen} onClose={() => setEditOpen(false)} fullWidth maxWidth="sm">
