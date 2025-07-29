@@ -7,12 +7,13 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
 import { CREATE_CV } from '@/api/mutations/createCV';
+import { GET_CVS } from '@/api/queries/getCVs';
 import { redInputSx } from '@/components/constants';
 import { useAuth } from '@/hooks/useAuth';
-import type { Cv } from '@/types/types';
+import type { CvsData } from '@/types/types';
 import { useAlert } from '@/ui/Alert/useAlert';
 
-export const AddCV = ({ onCreateSuccess }: { onCreateSuccess: (cv: Cv) => void; }) => {
+export const AddCV = () => {
     const { id } = useAuth();
     const { showAlert } = useAlert();
     const [open, setOpen] = useState(false);
@@ -23,7 +24,22 @@ export const AddCV = ({ onCreateSuccess }: { onCreateSuccess: (cv: Cv) => void; 
         description: ''
     });
 
-    const [createCv] = useMutation(CREATE_CV);
+    const [createCv] = useMutation(CREATE_CV, {
+        update(cache, { data }) {
+            const newCv = data?.createCv;
+            if (!newCv) return;
+
+            cache.updateQuery<CvsData>({
+                query: GET_CVS,
+                variables: { id },
+            }, (existing) => {
+                if (!existing) return { cvs: [newCv] };
+                return {
+                    cvs: [newCv, ...existing.cvs],
+                };
+            });
+        }
+    });
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => {
@@ -49,9 +65,8 @@ export const AddCV = ({ onCreateSuccess }: { onCreateSuccess: (cv: Cv) => void; 
         };
 
         try {
-            const { data } = await createCv({ variables: { input } });
+            await createCv({ variables: { input } });
             showAlert({ type: 'success', message: 'CV created successfully' });
-            onCreateSuccess(data.createCv);
             handleClose();
         } catch {
             showAlert({ type: 'error', message: 'Failed to create CV' });

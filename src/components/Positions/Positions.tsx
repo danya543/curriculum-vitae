@@ -10,13 +10,14 @@ import {
 import { GET_POSITIONS } from "@/api/queries/getPosition";
 import type { PositionsData } from "@/api/types";
 import type { PositionsProps } from "@/types/types";
+import { Loader } from "@/ui/Loader/Loader";
 
 import { MenuPropsSx, redInputSx } from "../constants";
 
 export const Positions = ({ position, onChange, disabled }: PositionsProps) => {
     const { data, loading, error } = useQuery<PositionsData>(GET_POSITIONS);
 
-    if (loading) return <>loading...</>;
+    if (loading) return <Loader />;
     if (error) return <>error loading positions</>;
 
     const handleChange = (event: SelectChangeEvent) => {

@@ -2,33 +2,25 @@ import {
     Box,
     Button,
     CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    FormControl,
-    InputLabel,
     List,
-    ListItem,
-    ListItemButton,
-    ListItemText,
-    MenuItem,
-    Select,
     Typography,
+    useTheme,
 } from "@mui/material";
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 
-import { MenuPropsSx, redInputSx } from "@/components/constants";
+import { LanguageCard } from "@/components/Language/LanguageCard";
+import { LanguageDialog } from "@/components/Language/LanguageDialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfileLang } from "@/hooks/useProfileLang";
 
 export const Languages = () => {
-    const { paramsId } = useParams();
+    const theme = useTheme();
+    const { id: paramsId } = useParams();
     const { id: userId, role: userRole } = useAuth()
     const location = useLocation();
-    const [id, setId] = useState<string | null>(null)
+    const [id, setId] = useState<string>('')
 
     useEffect(() => {
         if (location.pathname.includes('/users') && paramsId) {
@@ -50,19 +42,12 @@ export const Languages = () => {
         handleOpenEditDialog,
         handleDelete,
         handleToggleDeleteMode,
-        editingLanguageName,
-        handleDialogClose,
-        dialogOpen,
-        setSelectedLangId,
-        selectedLangId,
-        selectedProficiency,
-        setSelectedProficiency,
-        handleSave
-    } = useProfileLang({ id: id || '' });
+        dialogProps
+    } = useProfileLang({ id });
     if (langsLoading || profsLoading) return <CircularProgress />;
     if (!langsData || !profsData) return <Typography color="error">Failed to load data</Typography>;
 
-
+    const isAble = ((!paramsId && userId) || paramsId === userId || userRole === 'Admin') as boolean;
 
     return (
         <Box>
@@ -70,43 +55,37 @@ export const Languages = () => {
 
             <List>
                 {profileLanguages.length === 0 && <Typography>No languages added</Typography>}
-                {profileLanguages.map(lang => (
-                    <ListItem
-                        key={lang.name}
-                        disablePadding
-                        sx={{
-                            backgroundColor: selectedForDelete.includes(lang.name)
-                                ? 'rgba(255, 0, 0, 0.1)'
-                                : 'inherit',
-                            transition: 'background-color 0.2s',
-                        }}
-                    >
-                        <ListItemButton
-                            onClick={() =>
-                                deleting ? handleSelectForDelete(lang.name) : handleOpenEditDialog(lang)
-                            }
-                        >
-                            <ListItemText
-                                primary={lang.name}
-                                secondary={`Proficiency: ${lang.proficiency}`}
-                            />
-                        </ListItemButton>
-                    </ListItem>
 
+                {profileLanguages.map(lang => (
+                    <LanguageCard
+                        lang={lang}
+                        context={{
+                            selectedForDelete,
+                            isAble,
+                            deleting,
+                            handleSelectForDelete,
+                            handleOpenEditDialog,
+                        }} />
                 ))}
             </List>
 
-            {(!paramsId && userId) || paramsId === userId || userRole === 'Admin' ?
+            {isAble ?
                 <Box mt={2} display="flex" justifyContent='end' gap={2}>
-                    <Button sx={{
-                        color: 'rgb(198, 48, 49)'
-                    }} onClick={handleOpenAddDialog}>Add Language</Button>
+                    {!deleting &&
+                        <Button sx={{
+                            display: 'flex',
+                            gap: 2,
+                            alignItems: 'center',
+                            color: theme.palette.mode === "dark" ? theme.palette.grey[800] : theme.palette.grey[400],
+                        }} onClick={handleOpenAddDialog}>
+                            <Plus width={20} height={20} />Add Language
+                        </Button>}
 
                     {profileLanguages.length > 0 && (
                         <Box display="flex" gap={2}>
                             <Button
                                 color="error"
-                                sx={{ gap: '5px' }}
+                                sx={{ display: 'flex', gap: 2, alignItems: 'center' }}
                                 onClick={deleting ? handleDelete : handleToggleDeleteMode}
                                 disabled={deleting && selectedForDelete.length === 0}
                             >
@@ -122,63 +101,11 @@ export const Languages = () => {
                 </Box> : null}
 
 
-            <Dialog open={dialogOpen} onClose={handleDialogClose} fullWidth maxWidth="sm">
-                <DialogTitle>{editingLanguageName ? "Edit Language" : "Add Language"}</DialogTitle>
-                <DialogContent>
-                    <FormControl fullWidth sx={{
-                        mt: 2,
-                        ...redInputSx,
-                    }
-                    }>
-                        <InputLabel id="select-language-label">Language</InputLabel>
-                        <Select
-                            labelId="select-language-label"
-                            value={selectedLangId}
-                            label="Language"
-                            onChange={(e) => setSelectedLangId(e.target.value)}
-                            disabled={!!editingLanguageName}
-                            MenuProps={MenuPropsSx}
-                        >
-                            {langsData.languages.map((lang) => (
-                                <MenuItem key={lang.id} value={lang.id}>
-                                    {lang.name} ({lang.native_name})
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-
-                    <FormControl fullWidth sx={{
-                        mt: 2,
-                        ...redInputSx,
-                    }}>
-                        <InputLabel id="select-proficiency-label">Proficiency</InputLabel>
-                        <Select
-                            labelId="select-proficiency-label"
-                            value={selectedProficiency}
-                            label="Proficiency"
-                            onChange={(e) => setSelectedProficiency(e.target.value)}
-                            MenuProps={MenuPropsSx}
-                        >
-                            {profsData.__type.enumValues.map((p) => (
-                                <MenuItem key={p.name} value={p.name}>
-                                    {p.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </DialogContent>
-                <DialogActions>
-                    <Button sx={{ color: 'rgba(198, 48, 49,0.8)', '&:hover': { background: 'rgba(198, 48, 49,0.2)' }, }} onClick={handleDialogClose}>Cancel</Button>
-                    <Button
-                        variant="text"
-                        sx={{ color: 'rgb(198, 48, 49)', '&:hover': { background: 'rgba(198, 48, 49,0.3)' } }}
-                        onClick={handleSave}
-                        disabled={!selectedLangId || !selectedProficiency}
-                    >
-                        {editingLanguageName ? "Update" : "Add"}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <LanguageDialog
+                {...dialogProps}
+                langsData={langsData}
+                profsData={profsData}
+            />
         </Box>
     );
 };

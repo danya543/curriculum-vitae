@@ -34,3 +34,13 @@ export const MenuPropsSx = {
         },
     },
 }
+
+export const levelColors: Record<string, string> = {
+    A1: "#f44336",
+    A2: "#e57373",
+    B1: "#ff9800",
+    B2: "#ffb74d",
+    C1: "#4caf50",
+    C2: "#81c784",
+    Native: '#c63031',
+};

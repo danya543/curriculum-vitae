@@ -9,13 +9,14 @@ import {
 
 import { GET_DEPARTMENTS } from "@/api/queries/getDepartments";
 import type { DepartmentsData, DepartmentsProps } from "@/types/types";
+import { Loader } from "@/ui/Loader/Loader";
 
 import { MenuPropsSx, redInputSx } from "../constants";
 
 export const Departments = ({ department, onChange, disabled }: DepartmentsProps) => {
     const { data, loading, error } = useQuery<DepartmentsData>(GET_DEPARTMENTS);
 
-    if (loading) return <>loading...</>;
+    if (loading) return <Loader />;
     if (error) return <>error loading departments</>;
 
     const handleChange = (event: SelectChangeEvent) => {

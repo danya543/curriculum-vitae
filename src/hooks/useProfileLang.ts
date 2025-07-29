@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@apollo/client";
-import type { Profile } from "cv-graphql";
+import type { Language, LanguageProficiency } from "cv-graphql";
 import { useEffect, useState } from "react";
 
 import { ADD_PROFILE_LANGUAGE } from "@/api/mutations/addProfileLang";
@@ -8,31 +8,8 @@ import { UPDATE_PROFILE_LANGUAGE } from "@/api/mutations/updProfileLang";
 import { GET_PROFICIENCY_LEVELS } from "@/api/queries/getLangProfieciency";
 import { GET_LANGUAGES } from "@/api/queries/getLanguages";
 import { GET_PROFILE_INFO } from "@/api/queries/getProfileLangs";
+import type { ProfileData, ProfileLanguage, ProfileVars } from "@/types/types";
 import { useAlert } from "@/ui/Alert/useAlert";
-
-type Language = {
-    id: string;
-    name: string;
-    iso2: string;
-    native_name: string;
-};
-
-type LanguageProficiency = {
-    name: string;
-};
-
-type ProfileLanguage = {
-    name: string;
-    proficiency: string;
-};
-
-export type ProfileData = {
-    profile: Profile;
-};
-
-export type ProfileVars = {
-    userId: string | null;
-};
 
 export const useProfileLang = ({ id }: { id: string }) => {
     const { showAlert } = useAlert();
@@ -43,7 +20,7 @@ export const useProfileLang = ({ id }: { id: string }) => {
     );
     const { data: userData, loading } = useQuery<ProfileData, ProfileVars>(
         GET_PROFILE_INFO,
-        { variables: { userId: id } }
+        { variables: { userId: id }, skip: !id, }
     );
     const [addProfileLanguage] = useMutation(ADD_PROFILE_LANGUAGE);
     const [updateProfileLanguage] = useMutation(UPDATE_PROFILE_LANGUAGE);
@@ -163,23 +140,25 @@ export const useProfileLang = ({ id }: { id: string }) => {
     };
 
     return {
+        dialogProps: {
+            editingLanguageName,
+            handleDialogClose,
+            dialogOpen,
+            setSelectedLangId,
+            selectedLangId,
+            selectedProficiency,
+            setSelectedProficiency,
+            handleSave,
+        },
         langsData,
         selectedForDelete,
         deleting,
-        editingLanguageName,
-        handleDialogClose,
-        dialogOpen,
-        setSelectedLangId,
-        selectedLangId,
-        selectedProficiency,
-        setSelectedProficiency,
         profileLanguages,
         profsLoading,
         profsData,
         langsLoading,
         handleOpenAddDialog,
         handleOpenEditDialog,
-        handleSave,
         handleToggleDeleteMode,
         handleSelectForDelete,
         handleDelete

@@ -20,6 +20,7 @@ import { CREATE_USER } from '@/api/mutations/createUser';
 import { GET_DEPARTMENTS } from '@/api/queries/getDepartments';
 import { GET_POSITIONS } from '@/api/queries/getPosition';
 import { useAlert } from '@/ui/Alert/useAlert';
+import { Loader } from '@/ui/Loader/Loader';
 
 import { MenuPropsSx, redInputSx } from '../constants';
 
@@ -128,7 +129,7 @@ export const CreateUserModal = ({ open, onClose, onCreated }: Props) => {
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
             <DialogTitle>Create User</DialogTitle>
             <DialogContent>
-                {(depsLoading || posLoading) && <>loading...</>}
+                {(depsLoading || posLoading) && <Loader />}
                 {(depsError || posError) && <>error loading lists</>}
 
                 {!depsLoading && !posLoading && !depsError && !posError && (

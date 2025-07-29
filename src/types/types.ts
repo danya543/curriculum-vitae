@@ -1,7 +1,50 @@
-import type { CvProject } from "cv-graphql";
+import type { CvProject, Language, LanguageProficiency, Profile } from "cv-graphql";
 
 import type { User } from "@/api/types";
 import type { Mastery } from "@/components/CVTabs/constants";
+
+export type ProfileLanguage = {
+    name: string;
+    proficiency: string;
+};
+
+export type ProfileData = {
+    profile: Profile;
+};
+
+export type ProfileVars = {
+    userId: string | null;
+};
+
+export interface LanguageCardProps {
+    lang: ProfileLanguage;
+    context: {
+        isAble: boolean;
+        deleting: boolean;
+        selectedForDelete: string[];
+        handleSelectForDelete: (name: string) => void;
+        handleOpenEditDialog: (lang: ProfileLanguage) => void;
+    };
+}
+
+export interface LanguageDialogProps {
+    dialogOpen: boolean,
+    handleDialogClose: () => void,
+    editingLanguageName: string | null,
+    selectedLangId: string,
+    setSelectedLangId: (value: React.SetStateAction<string>) => void,
+    langsData: {
+        languages: Language[];
+    },
+    selectedProficiency: string,
+    setSelectedProficiency: (value: React.SetStateAction<string>) => void,
+    profsData: {
+        __type: {
+            enumValues: LanguageProficiency[];
+        };
+    },
+    handleSave: () => Promise<void>
+}
 
 type LanguageInput = {
     name: string;
@@ -75,7 +118,6 @@ export interface CvCardProps {
         user: { email: string }
     };
     onClick: (id: number) => void;
-    onDeleteSuccess: (cvId: number) => void;
     showAlert: (options: { type: "success" | "error" | "info"; message: string }) => void;
 }
 

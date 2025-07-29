@@ -1,5 +1,5 @@
-import { Box, Button, CircularProgress, List, Typography } from "@mui/material";
-import { Trash2 } from "lucide-react";
+import { Box, Button, CircularProgress, List, Typography, useTheme } from "@mui/material";
+import { Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 
@@ -10,9 +10,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfileSkills } from "@/hooks/useProfileSkills";
 
 export const ProfileSkills = () => {
+    const theme = useTheme();
     const location = useLocation();
-    const [id, setId] = useState<string | null>(null)
-    const { paramsId } = useParams();
+    const [id, setId] = useState<string>('')
+    const { id: paramsId } = useParams();
     const { id: userId, role: userRole } = useAuth()
 
     useEffect(() => {
@@ -44,10 +45,12 @@ export const ProfileSkills = () => {
         handleUpdateSkill,
         handleDelete,
         handleEditClick,
-    } = useProfileSkills({ id: id || '' });
+    } = useProfileSkills({ id });
 
     if (skillsLoading) return <CircularProgress />;
     if (skillsError) return <Typography color="error">Failed to load skills</Typography>;
+
+    const isAble = (!paramsId && userId) || paramsId === userId || userRole === 'Admin';
 
     return (
         <Box>
@@ -68,15 +71,17 @@ export const ProfileSkills = () => {
                                     deleteMode={deleteMode}
                                     isSelected={selectedForDelete.includes(skill.name)}
                                     onClick={() => {
-                                        if (deleteMode) {
-                                            const isSelected = selectedForDelete.includes(skill.name);
-                                            setSelectedForDelete(prev =>
-                                                isSelected
-                                                    ? prev.filter(name => name !== skill.name)
-                                                    : [...prev, skill.name]
-                                            );
-                                        } else {
-                                            handleEditClick(skill);
+                                        if (isAble) {
+                                            if (deleteMode) {
+                                                const isSelected = selectedForDelete.includes(skill.name);
+                                                setSelectedForDelete(prev =>
+                                                    isSelected
+                                                        ? prev.filter(name => name !== skill.name)
+                                                        : [...prev, skill.name]
+                                                );
+                                            } else {
+                                                handleEditClick(skill);
+                                            }
                                         }
                                     }}
                                 />
@@ -86,37 +91,44 @@ export const ProfileSkills = () => {
                 ))
             )}
 
-            {(!paramsId && userId) || paramsId === userId || userRole === 'Admin' ? <Box sx={{ display: "flex", justifyContent: "flex-end", gap: '10px', mb: 2 }}>
-                <Button
-                    sx={{ background: 'transparent', color: '#C63031', '&:hover': { backgroundColor: 'action.hover' } }}
-                    onClick={() => setAddOpen(true)}
-                >
-                    Add Skill
-                </Button>
-
-                {deleteMode ? (
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                        <Button sx={{ color: '#C63031', '&:hover': { backgroundColor: 'action.hover' } }} onClick={() => { setDeleteMode(false); setSelectedForDelete([]); }}>
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="error"
-                            disabled={selectedForDelete.length === 0}
-                            onClick={handleDelete}
-                        >
-                            Delete Selected
-                        </Button>
-                    </Box>
-                ) : Object.entries(groupedSkills || {}).length > 0 && (
-                    <Button
-                        sx={{ color: '#C63031', gap: '5px', '&:hover': { backgroundColor: 'action.hover' } }}
-                        onClick={() => setDeleteMode(true)}
+            {isAble ?
+                <Box sx={{ display: "flex", justifyContent: "flex-end", gap: '10px', mb: 2 }}>
+                    {!deleteMode && <Button
+                        sx={{
+                            display: 'flex',
+                            gap: 2,
+                            alignItems: 'center',
+                            color: theme.palette.mode === "dark" ? theme.palette.grey[800] : theme.palette.grey[400],
+                            '&:hover': { backgroundColor: 'action.hover' }
+                        }}
+                        onClick={() => setAddOpen(true)}
                     >
-                        <Trash2 width={20} height={20} />Delete Skill
-                    </Button>
-                )}
-            </Box> : null}
+                        <Plus width={20} height={20} />Add Skill
+                    </Button>}
+
+                    {deleteMode ? (
+                        <Box sx={{ display: "flex", gap: 2, alignItems: 'center' }}>
+                            <Button sx={{ color: '#C63031', '&:hover': { backgroundColor: 'action.hover' } }} onClick={() => { setDeleteMode(false); setSelectedForDelete([]); }}>
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="error"
+                                disabled={selectedForDelete.length === 0}
+                                onClick={handleDelete}
+                            >
+                                Delete Selected
+                            </Button>
+                        </Box>
+                    ) : Object.entries(groupedSkills || {}).length > 0 && (
+                        <Button
+                            sx={{ color: '#C63031', gap: '5px', '&:hover': { backgroundColor: 'action.hover' } }}
+                            onClick={() => setDeleteMode(true)}
+                        >
+                            <Trash2 width={20} height={20} />Delete Skill
+                        </Button>
+                    )}
+                </Box> : null}
 
             <AddSkillDialog
                 open={addOpen}

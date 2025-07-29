@@ -18,7 +18,7 @@ export const useProfileSkills = ({ id }: { id: string }) => {
     const { showAlert } = useAlert();
 
     const { data: skillsData, loading: skillsLoading, error: skillsError } = useQuery<Skills>(GET_SKILLS);
-    const { data: profileData } = useQuery<ProfileSkills>(GET_PROFILE_INFO, { variables: { userId: id } });
+    const { data: profileData } = useQuery<ProfileSkills>(GET_PROFILE_INFO, { variables: { userId: id }, skip: !id, });
     const { data: categoryData } = useQuery<{ skillCategories: { id: string; name: string }[] }>(GET_SKILL_CATEGORIES);
 
     const [addSkill] = useMutation(ADD_PROFILE_SKILL);
@@ -43,7 +43,7 @@ export const useProfileSkills = ({ id }: { id: string }) => {
 
     const groupedSkills = useMemo(() => {
         return profileData?.profile.skills.reduce<Record<string, Skill[]>>((acc, skill) => {
-            const category = skill.category_name || categoryMap[skill.categoryId!] || "Uncategorized";
+            const category = skill.category_name || categoryMap[skill.categoryId!] || "Other";
             (acc[category] ??= []).push(skill);
             return acc;
         }, {});
@@ -51,7 +51,7 @@ export const useProfileSkills = ({ id }: { id: string }) => {
 
     const groupedSelectSkills = useMemo(() => {
         return (skillsData?.skills ?? []).reduce<Record<string, Skill[]>>((acc, skill) => {
-            const category = skill.category_name || categoryMap[skill.categoryId!] || "Uncategorized";
+            const category = skill.category_name || categoryMap[skill.categoryId!] || "Other";
             (acc[category] ??= []).push(skill);
             return acc;
         }, {});

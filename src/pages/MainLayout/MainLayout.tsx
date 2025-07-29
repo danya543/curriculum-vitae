@@ -5,7 +5,7 @@ import { Outlet } from 'react-router-dom'
 import { SideMenu } from '@/components/SideMenu/SideMenu'
 
 export const MainLayout = () => {
-    const [open, setOpen] = useState(true)
+    const [open, setOpen] = useState(false)
     const toggleMenu = () => setOpen(prev => !prev)
 
     return (

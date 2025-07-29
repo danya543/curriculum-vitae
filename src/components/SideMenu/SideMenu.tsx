@@ -10,6 +10,7 @@ import { removeTokens } from "@/components/constants"
 import { useAuth } from "@/hooks/useAuth"
 import type { SideMenuProps } from "@/types/types"
 import { ICONS } from "@/ui/constants"
+import { Loader } from "@/ui/Loader/Loader"
 
 export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
     const location = useLocation()
@@ -45,6 +46,7 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
     return (
         <>
             <Box
+                component={'aside'}
                 sx={{
                     position: 'fixed',
                     top: 0,
@@ -132,7 +134,7 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                             )}
                         </Box>
                     ) : (
-                        open && <Typography>Loading...</Typography>
+                        open && <Loader />
                     )}
 
                     <IconButton size="small" onClick={toggleMenu}>

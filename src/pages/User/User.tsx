@@ -13,6 +13,7 @@ import { BreadcrumbsNav } from "@/components/Nav/Nav";
 import { Profile } from "@/components/Profile/Profile";
 import { Languages } from "@/pages/Languages/Languages";
 import { ProfileSkills } from "@/pages/Skills/Skills";
+import { Loader } from "@/ui/Loader/Loader";
 
 export const UserPage = () => {
     const { id } = useParams();
@@ -28,7 +29,7 @@ export const UserPage = () => {
 
     const user = data?.user;
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <Loader />;
     if (error) return <div>Error: {error.message}</div>;
     if (!user) return <div>User not found</div>;
 

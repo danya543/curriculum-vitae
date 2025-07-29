@@ -44,14 +44,6 @@ export const CVs = () => {
         if (data?.cvs) setCvs(data.cvs);
     }, [data]);
 
-    const handleAddCV = (newCv: Cv) => {
-        setCvs(prev => [newCv, ...prev]);
-    };
-
-    const handleDeleteSuccess = (id: number) => {
-        setCvs((prev) => prev.filter((cv) => cv.id !== id));
-    };
-
     const [sortKey, setSortKey] = useState<SortKey>("name");
     const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
 
@@ -129,7 +121,7 @@ export const CVs = () => {
                         }}
                     />
                 )}
-                <AddCV onCreateSuccess={handleAddCV} />
+                <AddCV />
             </Box>
 
             <SortHeader columns={columns} sortKey={sortKey} sortOrder={sortOrder} onSort={handleSort} />
@@ -140,7 +132,6 @@ export const CVs = () => {
                         key={cv.id}
                         cv={cv}
                         onClick={() => navigate(`/cvs/${cv.id}`)}
-                        onDeleteSuccess={handleDeleteSuccess}
                         showAlert={showAlert}
                     />
                 ))

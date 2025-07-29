@@ -10,7 +10,7 @@ interface PreviewTabProps {
 }
 
 export const PreviewTab: React.FC<PreviewTabProps> = ({ cv }) => {
-    const [exportPdf] = useMutation(EXPORT_PDF);
+    const [exportPdf, { loading }] = useMutation(EXPORT_PDF);
     const handleExport = async () => {
         const htmlContent = document.getElementById("pdf-root")?.outerHTML;
 
@@ -71,6 +71,7 @@ export const PreviewTab: React.FC<PreviewTabProps> = ({ cv }) => {
                         }}
                         variant="outlined"
                         onClick={handleExport}
+                        disabled={loading}
                     >
                         Export PDF
                     </Button>
@@ -94,6 +95,9 @@ export const PreviewTab: React.FC<PreviewTabProps> = ({ cv }) => {
                             </Typography>
                         ))}
 
+                        <Typography variant="subtitle2" fontWeight={600}>Domains</Typography>
+                        <Typography variant="body2" gutterBottom>{cv.projects.map(p => p.domain).filter(Boolean).join(', ')}</Typography>
+
                         <Typography variant="subtitle2" fontWeight={600} sx={{ mt: 2 }}>Skills</Typography>
                         {cv.skills.map(skill => (
                             <Box key={skill.name} sx={{ mb: 0.5 }}>
@@ -110,10 +114,10 @@ export const PreviewTab: React.FC<PreviewTabProps> = ({ cv }) => {
                         </Typography>
                         <Typography variant="body2" paragraph>{cv.description || "No description provided."}</Typography>
 
-                        <Typography variant="subtitle2" fontWeight={600} gutterBottom>Projects</Typography>
+                        <Typography variant="h4" fontWeight={600} gutterBottom>Projects</Typography>
                         {cv.projects.map((p) => (
                             <Box key={p.id} sx={{ mb: 2 }}>
-                                <Typography variant="body1" fontWeight={500}>{p.name}</Typography>
+                                <Typography sx={{ color: '#c63031' }} variant="body1" fontWeight={500}>{p.name}</Typography>
                                 <Typography variant="body2" color="text.secondary">{p.description || "No description"}</Typography>
 
                                 <Typography variant="subtitle2" fontWeight={600} gutterBottom>Project roles</Typography>
@@ -140,7 +144,7 @@ export const PreviewTab: React.FC<PreviewTabProps> = ({ cv }) => {
                             </Box>
                         ))}
 
-                        <Typography variant="subtitle2" fontWeight={600} gutterBottom>Professional skills</Typography>
+                        <Typography variant="h4" fontWeight={600} gutterBottom>Professional skills</Typography>
                     </Box>
                 </Stack>
             </div>

@@ -37,7 +37,7 @@ export const useSkillsTab = ({ initialSkills, cvId }: SkillsTabProps) => {
 
     const groupedSkills = useMemo(() => {
         return skills.reduce<Record<string, Skill[]>>((acc, skill) => {
-            const category = skill.category_name || categoryMap[skill.categoryId!] || "Uncategorized";
+            const category = skill.category_name || categoryMap[skill.categoryId!] || "Other";
             (acc[category] ??= []).push(skill);
             return acc;
         }, {});
@@ -45,7 +45,7 @@ export const useSkillsTab = ({ initialSkills, cvId }: SkillsTabProps) => {
 
     const groupedSelectSkills = useMemo(() => {
         return (skillData?.skills ?? []).reduce<Record<string, Skill[]>>((acc, skill) => {
-            const category = skill.category_name || categoryMap[skill.categoryId!] || "Uncategorized";
+            const category = skill.category_name || categoryMap[skill.categoryId!] || "Other";
             (acc[category] ??= []).push(skill);
             return acc;
         }, {});

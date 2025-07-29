@@ -9,6 +9,7 @@ import { CreateUserModal } from '@/components/CreateUserModal/CreateUserModal'
 import { SortHeader } from '@/components/SortHeader/SortHeader'
 import { UserCard } from '@/components/UserCard/UserCard'
 import { useAuth } from '@/hooks/useAuth'
+import { Loader } from '@/ui/Loader/Loader'
 
 const columns = Array.from([
     { key: "firstName", label: "First name" },
@@ -89,7 +90,9 @@ export const UsersPage = () => {
         return result
     }, [data, search, sortKey, sortOrder, currentUserId])
 
-    if (loading) return <Typography>Loading...</Typography>
+    if (loading) {
+        return (<Loader />);
+    }
     if (error) return <Typography color="error">Error: {error.message}</Typography>
 
     return (
