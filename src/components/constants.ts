@@ -44,3 +44,11 @@ export const levelColors: Record<string, string> = {
     C2: "#81c784",
     Native: '#c63031',
 };
+
+export const usersColumns = [
+    { key: "firstName", label: "First name" },
+    { key: "lastName", label: "Last name" },
+    { key: "email", label: "Email" },
+    { key: "department", label: "Department" },
+    { key: "position", label: "Position" },
+] as const;

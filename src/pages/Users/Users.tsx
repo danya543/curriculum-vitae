@@ -1,26 +1,20 @@
 import { useQuery } from '@apollo/client'
-import { Box, Button, List, ListItem, TextField, Typography } from '@mui/material'
+import { ArrowDownward, ArrowUpward, ChevronRight } from '@mui/icons-material'
+import {
+    Avatar, Box, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography
+} from '@mui/material'
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { GET_USERS } from '@/api/queries/getUsers'
 import type { GetUsersData } from '@/api/types'
-import { redInputSx } from '@/components/constants'
+import { redInputSx, usersColumns } from '@/components/constants'
 import { CreateUserModal } from '@/components/CreateUserModal/CreateUserModal'
-import { SortHeader } from '@/components/SortHeader/SortHeader'
-import { UserCard } from '@/components/UserCard/UserCard'
+import { UserRowMenu } from '@/components/UserCard/UserRowMenu'
 import { useAuth } from '@/hooks/useAuth'
 import { Loader } from '@/ui/Loader/Loader'
 
-const columns = Array.from([
-    { key: "firstName", label: "First name" },
-    { key: "lastName", label: "Last name" },
-    { key: "email", label: "Email" },
-    { key: "department", label: "Department" },
-    { key: "position", label: "Position" },
-] as const);
-
-type SortKey = (typeof columns)[number]["key"];
+type SortKey = (typeof usersColumns)[number]["key"];
 type SortOrder = 'asc' | 'desc'
 
 export const UsersPage = () => {
@@ -128,20 +122,120 @@ export const UsersPage = () => {
             {filteredUsers.length === 0 ? (
                 <Typography>User not found.</Typography>
             ) : (
-                <Box component={'section'} sx={{ '>div:nth-child(1)': { m: '0 10%', width: '80%' } }}>
-                    <SortHeader columns={columns} sortKey={sortKey} sortOrder={sortOrder} onSort={handleSort} />
+                <TableContainer component={Paper} sx={{ background: 'transparent', mt: 2 }}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell />
+                                <TableCell
+                                    onClick={() => handleSort('firstName')}
+                                    sx={{ cursor: 'pointer', fontWeight: 'bold' }}
+                                >
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                        First name
+                                        {sortKey === 'firstName' &&
+                                            (sortOrder === 'asc'
+                                                ? <ArrowUpward sx={{ fontSize: 16 }} />
+                                                : <ArrowDownward sx={{ fontSize: 16 }} />)}
+                                    </Box>
+                                </TableCell>
+                                <TableCell
+                                    onClick={() => handleSort('lastName')}
+                                    sx={{ cursor: 'pointer', fontWeight: 'bold' }}
+                                >
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                        Last name
+                                        {sortKey === 'lastName' &&
+                                            (sortOrder === 'asc'
+                                                ? <ArrowUpward sx={{ fontSize: 16 }} />
+                                                : <ArrowDownward sx={{ fontSize: 16 }} />)}
+                                    </Box>
+                                </TableCell>
+                                <TableCell
+                                    onClick={() => handleSort('email')}
+                                    sx={{ cursor: 'pointer', fontWeight: 'bold' }}
+                                >
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                        Email
+                                        {sortKey === 'email' &&
+                                            (sortOrder === 'asc'
+                                                ? <ArrowUpward sx={{ fontSize: 16 }} />
+                                                : <ArrowDownward sx={{ fontSize: 16 }} />)}
+                                    </Box>
+                                </TableCell>
+                                <TableCell
+                                    onClick={() => handleSort('department')}
+                                    sx={{
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold',
+                                        display: { xs: 'none', md: 'table-cell' }
+                                    }}
+                                >
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                        Department
+                                        {sortKey === 'department' &&
+                                            (sortOrder === 'asc'
+                                                ? <ArrowUpward sx={{ fontSize: 16 }} />
+                                                : <ArrowDownward sx={{ fontSize: 16 }} />)}
+                                    </Box>
+                                </TableCell>
+                                <TableCell
+                                    onClick={() => handleSort('position')}
+                                    sx={{
+                                        cursor: 'pointer',
+                                        fontWeight: 'bold',
+                                        display: { xs: 'none', md: 'table-cell' }
+                                    }}
+                                >
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                        Position
+                                        {sortKey === 'position' &&
+                                            (sortOrder === 'asc'
+                                                ? <ArrowUpward sx={{ fontSize: 16 }} />
+                                                : <ArrowDownward sx={{ fontSize: 16 }} />)}
+                                    </Box>
+                                </TableCell>
+                                <TableCell />
+                            </TableRow>
+                        </TableHead>
 
-                    <List sx={{ display: 'flex', flexDirection: 'column', p: 0 }}>
-                        {filteredUsers.map(user => (
-                            <ListItem key={user.id} disablePadding>
-                                <UserCard
-                                    user={user}
-                                    isCurrentUser={user.id === currentUserId}
-                                />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Box>
+                        <TableBody>
+                            {filteredUsers.map(user => {
+                                const isCurrent = user.id === currentUserId
+                                const avatar = user.profile.avatar
+                                const initials = user.profile.first_name?.[0]?.toUpperCase() || '?'
+
+                                return (
+                                    <TableRow key={user.id} hover selected={isCurrent}>
+                                        <TableCell>
+                                            <Avatar src={avatar} sx={{ width: 32, height: 32, bgcolor: 'grey.500' }}>
+                                                {!avatar && initials}
+                                            </Avatar>
+                                        </TableCell>
+                                        <TableCell>{user.profile.first_name}</TableCell>
+                                        <TableCell>{user.profile.last_name}</TableCell>
+                                        <TableCell>{user.email}</TableCell>
+                                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                                            {user.department_name || '-'}
+                                        </TableCell>
+                                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                                            {user.position_name || '-'}
+                                        </TableCell>
+                                        <TableCell>
+                                            {isCurrent ? (
+                                                <UserRowMenu user={user} />
+                                            ) : (
+                                                <IconButton onClick={() => navigate(`/users/${user.id}`)}>
+                                                    <ChevronRight />
+                                                </IconButton>
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             )}
             <CreateUserModal open={openModal} onClose={() => setOpenModal(false)} onCreated={refetch} />
         </Box>

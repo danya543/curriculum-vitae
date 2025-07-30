@@ -110,7 +110,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, onU
 
     return (
         <Box sx={{ p: 2, mb: 2, border: "none" }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Box sx={{
+                display: "grid", gridTemplateColumns: `repeat(5, 1fr)`,
+                gap: 2, alignItems: "center"
+            }}>
                 <Typography><b>{project.name}</b></Typography>
                 <Typography>{project.domain}</Typography>
                 <Typography>{(project.start_date)}</Typography>

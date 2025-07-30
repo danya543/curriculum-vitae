@@ -1,5 +1,5 @@
 import { Box, Button, List, Typography } from "@mui/material";
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import React from "react";
 
 import { SkillCard } from "@/components/SkillCard/SkillCard";
@@ -57,8 +57,8 @@ export const SkillsTab: React.FC<SkillsTabProps> = ({ initialSkills, cvId }) => 
             )}
 
             <Box sx={{ display: "flex", justifyContent: "flex-end", gap: '10px', mb: 2 }}>
-                <Button sx={{ color: '#C63031', '&:hover': { background: 'action.hover' }, }} onClick={() => renderAddDialog.setOpen(true)}>
-                    Add Skill
+                <Button sx={{ color: 'rgb(118, 118, 118)', '&:hover': { background: 'action.hover' }, }} onClick={() => renderAddDialog.setOpen(true)}>
+                    <Plus width={20} height={20} />Add Skill
                 </Button>
 
                 {deleteMode ? (
