@@ -205,7 +205,9 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ projects }) => {
                 </Button>
             </Box>
 
-            <SortHeader columns={columns} sortKey={sortKey} sortOrder={sortOrder} onSort={handleSort} />
+            <Box sx={{ width: '84%' }}>
+                <SortHeader columns={columns} sortKey={sortKey} sortOrder={sortOrder} onSort={handleSort} />
+            </Box>
 
             {filteredProjects.length === 0 ? (
                 <Typography>No projects found.</Typography>

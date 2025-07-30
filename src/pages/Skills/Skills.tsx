@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, List, Typography, useTheme } from "@mui/material";
+import { Box, Button, CircularProgress, List, Typography } from "@mui/material";
 import { Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
@@ -10,7 +10,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfileSkills } from "@/hooks/useProfileSkills";
 
 export const ProfileSkills = () => {
-    const theme = useTheme();
     const location = useLocation();
     const [id, setId] = useState<string>('')
     const { id: paramsId } = useParams();
@@ -98,7 +97,7 @@ export const ProfileSkills = () => {
                             display: 'flex',
                             gap: 2,
                             alignItems: 'center',
-                            color: theme.palette.mode === "dark" ? theme.palette.grey[800] : theme.palette.grey[400],
+                            color: 'rgb(118, 118, 118)',
                             '&:hover': { backgroundColor: 'action.hover' }
                         }}
                         onClick={() => setAddOpen(true)}

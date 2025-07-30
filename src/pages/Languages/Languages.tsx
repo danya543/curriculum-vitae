@@ -4,7 +4,6 @@ import {
     CircularProgress,
     List,
     Typography,
-    useTheme,
 } from "@mui/material";
 import { Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -16,7 +15,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfileLang } from "@/hooks/useProfileLang";
 
 export const Languages = () => {
-    const theme = useTheme();
     const { id: paramsId } = useParams();
     const { id: userId, role: userRole } = useAuth()
     const location = useLocation();
@@ -76,7 +74,7 @@ export const Languages = () => {
                             display: 'flex',
                             gap: 2,
                             alignItems: 'center',
-                            color: theme.palette.mode === "dark" ? theme.palette.grey[800] : theme.palette.grey[400],
+                            color: 'rgb(118, 118, 118)',
                         }} onClick={handleOpenAddDialog}>
                             <Plus width={20} height={20} />Add Language
                         </Button>}
