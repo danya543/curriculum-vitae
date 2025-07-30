@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client'
 import { Box, Button, List, ListItem, TextField, Typography } from '@mui/material'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { GET_USERS } from '@/api/queries/getUsers'
 import type { GetUsersData } from '@/api/types'
@@ -28,6 +29,7 @@ export const UsersPage = () => {
     const [sortKey, setSortKey] = useState<SortKey>('firstName')
     const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
     const [openModal, setOpenModal] = useState(false);
+    const navigate = useNavigate();
 
     const { id: currentUserId, role: userRole } = useAuth()
 
@@ -39,6 +41,11 @@ export const UsersPage = () => {
             setSortOrder("asc");
         }
     };
+
+    useEffect(() => {
+        if (!currentUserId) { navigate('/auth/login') }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     const filteredUsers = useMemo(() => {
         if (!data?.users) return []

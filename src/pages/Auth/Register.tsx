@@ -165,7 +165,7 @@ export const Register = () => {
                     href="#"
                     onClick={(e) => {
                         e.preventDefault();
-                        navigate('/users');
+                        navigate('/auth/login');
                     }}
                     sx={{
                         color: 'rgb(118, 118, 118)',
