@@ -202,15 +202,17 @@ export const UsersPage = () => {
                         <TableBody>
                             {filteredUsers.map(user => {
                                 const isCurrent = user.id === currentUserId
-                                const avatar = user.profile.avatar
-                                const initials = user.profile.first_name?.[0]?.toUpperCase() || '?'
 
                                 return (
                                     <TableRow key={user.id} hover selected={isCurrent}>
                                         <TableCell>
-                                            <Avatar src={avatar} sx={{ width: 32, height: 32, bgcolor: 'grey.500' }}>
-                                                {!avatar && initials}
-                                            </Avatar>
+                                            {user.profile.avatar ? (
+                                                <Avatar src={user.profile.avatar} sx={{ width: 40, height: 40 }} />
+                                            ) : (
+                                                <Avatar sx={{ bgcolor: 'grey.500', width: 40, height: 40 }}>
+                                                    {user.profile.first_name?.charAt(0).toUpperCase()}
+                                                </Avatar>
+                                            )}
                                         </TableCell>
                                         <TableCell>{user.profile.first_name}</TableCell>
                                         <TableCell>{user.profile.last_name}</TableCell>

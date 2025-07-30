@@ -1,4 +1,4 @@
-import { useMutation } from "@apollo/client";
+import { type Reference, type StoreObject, useMutation } from "@apollo/client";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {
     Box,
@@ -20,7 +20,21 @@ import { DELETE_CV } from "@/api/mutations/deleteCV";
 import type { CvCardProps } from "@/types/types";
 
 export const CvCard: React.FC<CvCardProps> = ({ cv, onClick, showAlert }) => {
-    const [deleteCv] = useMutation(DELETE_CV);
+    const [deleteCv] = useMutation(DELETE_CV, {
+        update(cache, { data }) {
+            if (!data?.deleteCv?.affected) return;
+
+            cache.modify({
+                fields: {
+                    cvs(existingCvs = [], { readField }) {
+                        return existingCvs.filter(
+                            (cvRef: Reference | StoreObject | undefined) => readField('id', cvRef) !== cv.id
+                        );
+                    },
+                },
+            });
+        },
+    });
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [confirmOpen, setConfirmOpen] = useState(false);
 

@@ -1,4 +1,5 @@
-import { useMutation } from "@apollo/client";
+import { type Reference, useMutation } from "@apollo/client";
+import type { ModifierDetails, StoreObject } from "@apollo/client/cache";
 import { MoreVert } from "@mui/icons-material";
 import {
     Box,
@@ -27,11 +28,9 @@ import { redInputSx } from "../constants";
 
 type ProjectCardProps = {
     project: CvProject;
-    onDelete: (id: string) => void;
-    onUpdate: (updated: CvProject) => void;
 };
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, onUpdate }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
     const { showAlert } = useAlert();
     const { id: cvId } = useParams();
     const theme = useTheme();
@@ -45,13 +44,67 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, onU
         responsibilities: project.responsibilities.join(", "),
     });
 
-    const [deleteProject] = useMutation(REMOVE_CV_PROJECT);
-    const [updateProject] = useMutation(UPDATE_CV_PROJECT);
+    const [deleteProject] = useMutation<{ removeCvProject: { id: string } }, { project: { cvId: string; projectId: string } }>(
+        REMOVE_CV_PROJECT,
+        {
+            update(cache, { data }) {
+                if (!data?.removeCvProject?.id) return;
+                cache.modify({
+                    id: cache.identify({ __typename: "Cv", id: cvId }),
+                    fields: {
+                        projects(
+                            existingRefs = [] as readonly Reference[],
+                            { readField }: ModifierDetails
+                        ): readonly Reference[] {
+                            return existingRefs.filter((ref: Reference) => {
+                                const refId = readField<string>("id", ref);
+                                return refId !== data.removeCvProject.id;
+                            });
+                        },
+                    },
+                });
+            },
+        }
+    );
+
+    const [updateProject] = useMutation<
+        { updateCvProject: CvProject },
+        { project: { cvId: string; projectId: string; start_date: string; end_date?: string | null; roles: string[]; responsibilities: string[] } }
+    >(
+        UPDATE_CV_PROJECT,
+        {
+            update(cache, { data }) {
+                if (!data?.updateCvProject) return;
+                cache.modify({
+                    id: cache.identify({ __typename: "Cv", id: cvId }),
+                    fields: {
+                        projects(
+                            existingRefs = [] as readonly (Reference | StoreObject)[],
+                            { readField, toReference }: ModifierDetails
+                        ): readonly Reference[] {
+                            return existingRefs.map((ref: Reference) => {
+                                const refId = readField<string>("id", ref);
+                                if (refId === data.updateCvProject.id) {
+                                    const updatedRef = toReference(data.updateCvProject as unknown as StoreObject);
+                                    return updatedRef as Reference;
+                                }
+                                return ref as Reference;
+                            });
+                        },
+                    },
+                });
+            },
+        }
+    );
 
     const handleMenuOpen = (e: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(e.currentTarget);
     const handleMenuClose = () => setAnchorEl(null);
 
     const handleDelete = async () => {
+        if (!cvId) {
+            showAlert({ type: "error", message: "No CV ID provided" });
+            return;
+        }
         try {
             await deleteProject({
                 variables: {
@@ -61,7 +114,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, onU
                     }
                 },
             });
-            onDelete(project.id)
             showAlert({ type: "success", message: "Project deleted" });
         } catch {
             showAlert({ type: "error", message: "Failed to delete project" });
@@ -80,26 +132,35 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, onU
     };
 
     const handleUpdate = async () => {
+        if (!cvId) {
+            showAlert({ type: "error", message: "No CV ID provided" });
+            return;
+        }
+
         try {
-            const projectPayload = {
+            const projectPayload: {
+                cvId: string;
+                projectId: string;
+                start_date: string;
+                end_date?: string | null;
+                roles: string[];
+                responsibilities: string[];
+            } = {
                 cvId,
-                projectId: project.id,
+                projectId: project.project.id,
                 start_date: new Date(form.start_date).toISOString(),
-                end_date: form.end_date ? new Date(form.end_date).toISOString() : null,
-                roles: form.roles.split(",").map(s => s.trim()),
+                roles: form.roles.length > 0 ? form.roles.split(",").map(s => s.trim()) : [],
                 responsibilities: form.responsibilities.split(",").map(s => s.trim()),
             };
+
+            if (form.end_date) {
+                projectPayload.end_date = new Date(form.end_date).toISOString();
+            }
+
             await updateProject({
                 variables: {
                     project: projectPayload
                 },
-            });
-            onUpdate({
-                ...project,
-                start_date: projectPayload.start_date,
-                end_date: projectPayload.end_date,
-                roles: projectPayload.roles,
-                responsibilities: projectPayload.responsibilities,
             });
             showAlert({ type: "success", message: "Project updated" });
             handleDialogClose();
@@ -118,14 +179,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, onU
                 <Typography>{project.domain}</Typography>
                 <Typography>{(project.start_date)}</Typography>
                 <Typography>{project.end_date ? (project.end_date) : "Till now"}</Typography>
-                <IconButton onClick={handleMenuOpen}>
-                    <MoreVert />
-                </IconButton>
+                <Box sx={{ textAlign: 'end' }}>
+                    <IconButton onClick={handleMenuOpen}>
+                        <MoreVert />
+                    </IconButton>
+                </Box>
             </Box>
 
             <Typography sx={{ mt: 1, whiteSpace: "pre-line" }}>{project.description}</Typography>
 
-            <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1 }}>
+            {project.responsibilities.length > 0 && <Box sx={{ mt: 2, display: "flex", flexWrap: "wrap", gap: 1 }}>
                 {project.responsibilities.map((resp, idx) => (
                     <Box
                         key={idx}
@@ -140,7 +203,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onDelete, onU
                         {resp}
                     </Box>
                 ))}
-            </Box>
+            </Box>}
 
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
                 <MenuItem onClick={handleDialogOpen}>Update</MenuItem>

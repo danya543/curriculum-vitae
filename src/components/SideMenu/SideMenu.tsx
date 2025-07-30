@@ -77,6 +77,7 @@ export const SideMenu = ({ open, toggleMenu }: SideMenuProps) => {
                                     alignItems: 'center',
                                     gap: open ? 1 : 0,
                                     p: 1,
+                                    mb: 2,
                                     borderRadius: 7,
                                     cursor: 'pointer',
                                     transition: 'background 0.2s',

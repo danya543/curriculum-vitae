@@ -12,7 +12,8 @@ import { type ChangeEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { SIGNUP } from '@/api/mutations/auth';
-import { setInfo, setTokens } from '@/components/constants';
+import { redInputSx, setInfo, setTokens } from '@/components/constants';
+import { getApolloErrorMessage } from '@/components/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useAlert } from '@/ui/Alert/useAlert';
 
@@ -32,7 +33,21 @@ export const Register = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const [signup, { loading }] = useMutation(SIGNUP);
+    const [signup, { loading }] = useMutation(SIGNUP, {
+        onCompleted: (data) => {
+            const { access_token, refresh_token, user } = data.signup;
+            if (access_token && user) {
+                setTokens(access_token, refresh_token);
+                setInfo(user.id, user.role);
+                showAlert({ type: 'success', message: 'Sign up successfully' });
+                navigate('/users');
+            }
+        },
+        onError: (error) => {
+            const message = getApolloErrorMessage(error);
+            showAlert({ type: 'error', message });
+        },
+    });
 
     const validateField = (name: string, value: string) => {
         let error = '';
@@ -54,7 +69,7 @@ export const Register = () => {
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        setForm((prev) => ({ ...prev, [name]: value.trim() }));
         validateField(name, value);
     };
 
@@ -68,28 +83,16 @@ export const Register = () => {
         validateField('password', form.password);
         if (!isFormValid) return;
 
-        try {
-            const { data } = await signup({
-                variables: {
-                    auth: {
-                        email: form.email,
-                        password: form.password
-                    }
-                }
-            })
-
-            const { access_token, refresh_token, user } = data.signup
-            if (access_token && user) {
-                setTokens(access_token, refresh_token)
-                setInfo(user.id, user.role)
-                showAlert({ type: 'success', message: 'Sign up successfully' })
-                navigate('/users')
-            }
-        } catch (err) {
-            console.error(err);
-            showAlert({ type: 'error', message: 'Sign up error' });
-        }
+        await signup({
+            variables: {
+                auth: {
+                    email: form.email,
+                    password: form.password,
+                },
+            },
+        });
     };
+
 
     return (
         <Box
@@ -122,6 +125,7 @@ export const Register = () => {
                 variant="outlined"
                 fullWidth
                 required
+                sx={redInputSx}
                 error={!!errors.email}
                 helperText={errors.email}
             />
@@ -134,6 +138,7 @@ export const Register = () => {
                 variant="outlined"
                 fullWidth
                 required
+                sx={redInputSx}
                 error={!!errors.password}
                 helperText={errors.password}
                 InputProps={{
@@ -180,3 +185,4 @@ export const Register = () => {
         </Box>
     );
 };
+

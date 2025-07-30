@@ -65,7 +65,7 @@ export const PreviewTab: React.FC<PreviewTabProps> = ({ cv }) => {
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
-            link.download = `${cv.user.profile.full_name}_CV.pdf`;
+            link.download = `${cv.user.profile.full_name ? cv.user.profile.full_name : cv.user.email}_CV.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

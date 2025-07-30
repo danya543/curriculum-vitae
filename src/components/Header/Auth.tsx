@@ -5,7 +5,7 @@ export const AuthHeader = () => {
     const location = useLocation()
     const navigate = useNavigate()
 
-    const currentTab = location.pathname.includes('/register') ? 'register' : 'login'
+    const currentTab = location.pathname.includes('/signup') ? 'signup' : 'login'
 
     const handleChange = (_: React.SyntheticEvent, newValue: string) => {
         navigate(`/auth/${newValue}`)
@@ -34,10 +34,10 @@ export const AuthHeader = () => {
                 />
                 <Tab
                     label="Register"
-                    value="register"
+                    value="signup"
                     sx={{
-                        color: currentTab === 'register' ? '#C63031' : 'inherit',
-                        fontWeight: currentTab === 'register' ? 600 : 400,
+                        color: currentTab === 'signup' ? '#C63031' : 'inherit',
+                        fontWeight: currentTab === 'signup' ? 600 : 400,
                     }}
                 />
             </Tabs>
