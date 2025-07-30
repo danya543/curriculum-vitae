@@ -1,4 +1,5 @@
-import { Visibility, VisibilityOff } from '@mui/icons-material'
+import { useMutation } from '@apollo/client';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -6,30 +7,95 @@ import {
     InputAdornment,
     TextField,
     Typography
-} from '@mui/material'
-import { type ChangeEvent, useState } from 'react'
+} from '@mui/material';
+import { type ChangeEvent, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { SIGNUP } from '@/api/mutations/auth';
+import { setInfo, setTokens } from '@/components/constants';
+import { useAuth } from '@/hooks/useAuth';
+import { useAlert } from '@/ui/Alert/useAlert';
 
 export const Register = () => {
-    const [registerData, setRegisterData] = useState({
-        username: '',
-        password: '',
-    })
-    const [showPassword, setShowPassword] = useState(false)
+    const navigate = useNavigate();
+    const { showAlert } = useAlert();
+
+    const [form, setForm] = useState({ email: '', password: '' });
+    const [showPassword, setShowPassword] = useState(false);
+    const [errors, setErrors] = useState({ email: '', password: '' });
+
+    const { isAuthenticated } = useAuth()
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/users')
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    const [signup, { loading }] = useMutation(SIGNUP);
+
+    const validateField = (name: string, value: string) => {
+        let error = '';
+        if (name === 'email') {
+            if (!value) {
+                error = 'Email is required';
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                error = 'Invalid email format';
+            }
+        } else if (name === 'password') {
+            if (!value) {
+                error = 'Password is required';
+            } else if (value.length < 6) {
+                error = 'Password must be at least 6 characters';
+            }
+        }
+        setErrors((prev) => ({ ...prev, [name]: error }));
+    };
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setRegisterData(prev => ({ ...prev, [name]: value }))
-    }
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+        validateField(name, value);
+    };
 
-    const toggleShowPassword = () => setShowPassword(prev => !prev)
+    const isFormValid = !errors.email && !errors.password && form.email && form.password;
+
+    const toggleShowPassword = () => setShowPassword((prev) => !prev);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        validateField('email', form.email);
+        validateField('password', form.password);
+        if (!isFormValid) return;
+
+        try {
+            const { data } = await signup({
+                variables: {
+                    auth: {
+                        email: form.email,
+                        password: form.password
+                    }
+                }
+            })
+
+            const { access_token, refresh_token, user } = data.signup
+            if (access_token && user) {
+                setTokens(access_token, refresh_token)
+                setInfo(user.id, user.role)
+                showAlert({ type: 'success', message: 'Sign up successfully' })
+                navigate('/users')
+            }
+        } catch (err) {
+            console.error(err);
+            showAlert({ type: 'error', message: 'Sign up error' });
+        }
+    };
 
     return (
         <Box
             component="form"
             sx={{
-                maxWidth: 360,
-                mx: 'auto',
-                mt: 8,
+                width: 400,
                 p: 3,
                 display: 'flex',
                 flexDirection: 'column',
@@ -38,34 +104,38 @@ export const Register = () => {
                 borderRadius: 2,
                 bgcolor: 'background.paper',
             }}
+            onSubmit={handleSubmit}
             noValidate
-            autoComplete="off"
         >
             <Typography variant="h5" component="h3" textAlign="center">
-                Зарегистрируйтесь
+                Register now
             </Typography>
             <Typography variant="body1" textAlign="center" color="text.secondary" mb={2}>
-                Добро пожаловать! Создайте аккаунт, чтобы продолжить
+                Welcome! Sign up to continue
             </Typography>
 
             <TextField
-                label="Username"
-                name="username"
-                value={registerData.username}
+                label="Email"
+                name="email"
+                value={form.email}
                 onChange={handleChange}
                 variant="outlined"
                 fullWidth
                 required
+                error={!!errors.email}
+                helperText={errors.email}
             />
             <TextField
                 label="Password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
-                value={registerData.password}
+                value={form.password}
                 onChange={handleChange}
                 variant="outlined"
                 fullWidth
                 required
+                error={!!errors.password}
+                helperText={errors.password}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
@@ -80,19 +150,33 @@ export const Register = () => {
             <Button
                 type="submit"
                 variant="contained"
+                disabled={!isFormValid || loading}
                 sx={{
                     backgroundColor: 'rgba(198, 48, 49, 1)',
                     ':hover': { backgroundColor: 'rgba(170, 40, 42, 1)' }
                 }}
             >
-                Создать аккаунт
+                {loading ? 'Creating...' : 'Create account'}
             </Button>
 
             <Box textAlign="center" mt={1}>
-                <a href="#" style={{ color: 'rgb(118, 118, 118)', textDecoration: 'none', fontWeight: 500 }}>
-                    У меня уже есть аккаунт
-                </a>
+                <Typography
+                    component="a"
+                    href="#"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        navigate('/users');
+                    }}
+                    sx={{
+                        color: 'rgb(118, 118, 118)',
+                        textDecoration: 'none',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                    }}
+                >
+                    I have an account
+                </Typography>
             </Box>
         </Box>
-    )
-}
+    );
+};
