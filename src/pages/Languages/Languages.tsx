@@ -51,7 +51,7 @@ export const Languages = () => {
         <Box>
             <Typography variant="h6" gutterBottom>Languages</Typography>
 
-            <List>
+            <List sx={{ display: 'flex', gap: 2 }}>
                 {profileLanguages.length === 0 && <Typography>No languages added</Typography>}
 
                 {profileLanguages.map(lang => (

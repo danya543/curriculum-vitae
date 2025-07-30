@@ -1,4 +1,4 @@
-import { ApolloError, useLazyQuery } from '@apollo/client';
+import { useLazyQuery } from '@apollo/client';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
     Box,
@@ -12,23 +12,11 @@ import { type ChangeEvent, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { LOGIN } from '@/api/mutations/auth';
-import { redInputSx, setInfo, setTokens } from '@/components/constants';
+import { getApolloErrorMessage, redInputSx, setInfo, setTokens } from '@/components/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { useAlert } from '@/ui/Alert/useAlert';
 
 type LoginForm = { email: string; password: string };
-
-const getApolloErrorMessage = (e: ApolloError) => {
-    const gqlMsg = e.graphQLErrors?.[0]?.message;
-    if (gqlMsg) return gqlMsg;
-
-    const networkMsg =
-        // @ts-expect-error - networkError 
-        e.networkError?.result?.errors?.[0]?.message ||
-        e.networkError?.message;
-
-    return networkMsg || e.message || 'Unknown error';
-};
 
 export const Login = () => {
     const { isAuthenticated } = useAuth();
@@ -65,7 +53,7 @@ export const Login = () => {
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        setForm((prev) => ({ ...prev, [name]: value.trim() }));
     };
 
     const toggleShowPassword = () => setShowPassword((show) => !show);

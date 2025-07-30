@@ -48,8 +48,8 @@ export const useProfileEdit = (user: UserForEdit) => {
 
     const handleSave = async () => {
         const nameChanged =
-            form.firstName !== initialState.firstName ||
-            form.lastName !== initialState.lastName;
+            form.firstName.trim() !== initialState.firstName ||
+            form.lastName.trim() !== initialState.lastName;
 
         const deptPosChanged =
             form.department !== initialState.department ||
@@ -62,8 +62,8 @@ export const useProfileEdit = (user: UserForEdit) => {
                         variables: {
                             profile: {
                                 userId: +user.id,
-                                first_name: form.firstName || '',
-                                last_name: form.lastName || '',
+                                first_name: form.firstName.trim() || '',
+                                last_name: form.lastName.trim() || '',
                             }
                         },
                         update: (cache) => {
@@ -71,8 +71,8 @@ export const useProfileEdit = (user: UserForEdit) => {
                                 id: cache.identify({ __typename: 'User', id: user.id }),
                                 fields: {
                                     profile(existingProfile = {}) {
-                                        const updatedFirst = form.firstName;
-                                        const updatedLast = form.lastName;
+                                        const updatedFirst = form.firstName.trim();
+                                        const updatedLast = form.lastName.trim();
                                         return {
                                             ...existingProfile,
                                             first_name: updatedFirst,
@@ -100,8 +100,8 @@ export const useProfileEdit = (user: UserForEdit) => {
                     variables: {
                         profile: {
                             userId: +user.id,
-                            first_name: form.firstName || '',
-                            last_name: form.lastName || '',
+                            first_name: form.firstName.trim() || '',
+                            last_name: form.lastName.trim() || '',
                         }
                     },
                     update: (cache) => {
@@ -109,8 +109,8 @@ export const useProfileEdit = (user: UserForEdit) => {
                             id: cache.identify({ __typename: 'User', id: user.id }),
                             fields: {
                                 profile(existingProfile = {}) {
-                                    const updatedFirst = form.firstName;
-                                    const updatedLast = form.lastName;
+                                    const updatedFirst = form.firstName.trim();
+                                    const updatedLast = form.lastName.trim();
                                     return {
                                         ...existingProfile,
                                         first_name: updatedFirst,

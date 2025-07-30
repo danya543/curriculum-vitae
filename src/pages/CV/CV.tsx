@@ -11,7 +11,6 @@ import { SkillsTab } from "@/components/CVTabs/SkillsTab";
 import { BreadcrumbsNav } from "@/components/Nav/Nav";
 
 const tabNames: Record<string, string> = {
-    details: "Details",
     skills: "Skills",
     projects: "Projects",
     preview: "Preview",
@@ -49,8 +48,10 @@ export const CVPage = () => {
 
     const breadcrumbs = [
         { label: "CVs", to: "/cvs" },
-        { label: cv.name },
-        { label: tabNames[activeTab] },
+        activeTab !== 'details'
+            ? { label: cv.name, to: `/cvs/${cv.id}?tab=details` }
+            : { label: cv.name },
+        ...(tabNames[activeTab] ? [{ label: tabNames[activeTab] }] : []),
     ];
 
     return (

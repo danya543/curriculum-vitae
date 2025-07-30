@@ -1,3 +1,5 @@
+import type { ApolloError } from "@apollo/client"
+
 export const setTokens = (access: string, refresh: string): void => {
     localStorage.setItem('access_token', access)
     localStorage.setItem('refresh_token', refresh)
@@ -52,3 +54,16 @@ export const usersColumns = [
     { key: "department", label: "Department" },
     { key: "position", label: "Position" },
 ] as const;
+
+
+export const getApolloErrorMessage = (e: ApolloError) => {
+    const gqlMsg = e.graphQLErrors?.[0]?.message;
+    if (gqlMsg) return gqlMsg;
+
+    const networkMsg =
+        // @ts-expect-error - networkError 
+        e.networkError?.result?.errors?.[0]?.message ||
+        e.networkError?.message;
+
+    return networkMsg || e.message || 'Unknown error';
+};

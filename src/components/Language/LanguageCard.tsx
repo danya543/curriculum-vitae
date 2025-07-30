@@ -17,6 +17,7 @@ export const LanguageCard = ({ lang, context }: LanguageCardProps) => {
         key={lang.name}
         disablePadding
         sx={{
+            width: 'fit-content',
             backgroundColor: selectedForDelete.includes(lang.name)
                 ? 'rgba(255, 0, 0, 0.1)'
                 : 'inherit',
@@ -33,6 +34,7 @@ export const LanguageCard = ({ lang, context }: LanguageCardProps) => {
                     }
                 }
             }}
+            sx={{ borderRadius: 10, pr: 3 }}
         >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Box

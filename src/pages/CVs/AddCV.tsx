@@ -58,9 +58,9 @@ export const AddCV = () => {
         }
 
         const input = {
-            name: form.name,
-            description: form.description,
-            education: form.education,
+            name: form.name.trim(),
+            description: form.description.trim(),
+            education: form.education.trim(),
             userId: id,
         };
 

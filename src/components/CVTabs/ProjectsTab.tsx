@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@apollo/client";
+import { gql, type Reference, useMutation, useQuery } from "@apollo/client";
 import {
     Box,
     Button,
@@ -19,12 +19,11 @@ import { useParams } from "react-router-dom";
 
 import { ADD_CV_PROJECT } from "@/api/mutations/addCvProject";
 import { GET_PROJECTS } from "@/api/queries/getProjects";
+import { MenuPropsSx, redInputSx } from "@/components/constants";
+import { ProjectCard } from "@/components/ProjectCard/ProjectCard";
+import { SortHeader } from "@/components/SortHeader/SortHeader";
 import type { ProjectsTabProps } from "@/types/types";
 import { useAlert } from "@/ui/Alert/useAlert";
-
-import { MenuPropsSx, redInputSx } from "../constants";
-import { ProjectCard } from "../ProjectCard/ProjectCard";
-import { SortHeader } from "../SortHeader/SortHeader";
 
 const columns = Array.from([
     { key: "name", label: "Name" },
@@ -49,7 +48,6 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ projects }) => {
     const { showAlert } = useAlert();
     const [search, setSearch] = useState("");
     const [open, setOpen] = useState(false);
-    const [localProjects, setLocalProjects] = useState(projects);
 
     const [sortKey, setSortKey] = useState<SortKey>("name");
     const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
@@ -90,7 +88,71 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ projects }) => {
         }
     };
 
-    const [createProject] = useMutation(ADD_CV_PROJECT);
+    const [createProject] = useMutation(ADD_CV_PROJECT, {
+        update(cache, { data }) {
+            const addedProjectData = data?.addCvProject;
+            if (!addedProjectData || !id) return;
+
+            const addedProjectOption = projectOptions.find((p: Project) => p.id === form.name);
+            if (!addedProjectOption) return;
+
+            const newProject = {
+                __typename: "CvProject",
+                id: addedProjectData.id,
+                name: addedProjectOption.name,
+                description: addedProjectOption.description,
+                domain: addedProjectOption.domain,
+                start_date: form.start_date,
+                end_date: form.end_date,
+                environment: addedProjectOption.environment,
+                roles: [],
+                responsibilities: form.responsibilities
+                    ? form.responsibilities.split(',').map(s => s.trim())
+                    : [],
+                project: {
+                    __typename: "Project",
+                    id: addedProjectOption.id,
+                    name: addedProjectOption.name,
+                },
+                internal_name: "",
+            };
+
+            const newProjectRef = cache.writeFragment({
+                data: newProject,
+                fragment: gql`
+                    fragment NewCvProject on CvProject {
+                        id
+                        name
+                        description
+                        domain
+                        start_date
+                        end_date
+                        environment
+                        roles
+                        responsibilities
+                        project {
+                            id
+                            name
+                        }
+                        internal_name
+                    }
+                `,
+            });
+
+            cache.modify({
+                id: cache.identify({ __typename: "Cv", id }),
+                fields: {
+                    projects(existingRefs = [] as readonly Reference[]) {
+                        if (existingRefs.some((ref: Reference) => ref === newProjectRef)) {
+                            return existingRefs;
+                        }
+
+                        return [...existingRefs, newProjectRef] as readonly Reference[];
+                    },
+                },
+            });
+        },
+    });
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => {
@@ -102,53 +164,23 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ projects }) => {
         setForm(prev => ({ ...prev, [field]: value }));
     };
 
-    const handleUpdateLocalProject = (updated: CvProject) => {
-        setLocalProjects(prev =>
-            prev.map(p => (p.id === updated.id ? { ...p, ...updated } : p))
-        );
-    };
-
-    const handleDeleteLocalProject = (id: string) => {
-        setLocalProjects(prev => prev.filter(p => p.id !== id));
-    };
-
     const handleSubmit = async () => {
         try {
-            if (!id) return
+            if (!id) return;
             const project: AddCvProjectInput = {
                 cvId: id,
-                projectId: form.name,
+                projectId: form.name.trim(),
                 start_date: new Date(form.start_date).toISOString(),
-                responsibilities: [],
+                responsibilities: form.responsibilities.length > 0 ? form.responsibilities.trim().split(',') : [],
                 roles: [],
             };
 
             if (form.end_date) {
                 project.end_date = new Date(form.end_date).toISOString();
             }
-            await createProject({
-                variables: { project },
-            });
 
-            const addedProject = projectOptions.find((p: Project) => p.id === form.name);
-            if (addedProject) {
-                setLocalProjects(prev => [
-                    ...prev,
-                    {
-                        id: form.name,
-                        name: addedProject.name,
-                        description: addedProject.description,
-                        domain: addedProject.domain,
-                        start_date: addedProject.start_date,
-                        end_date: addedProject.end_date,
-                        environment: addedProject.environment,
-                        roles: [],
-                        responsibilities: form.responsibilities.split(','),
-                        project: addedProject,
-                        internal_name: "",
-                    } as CvProject,
-                ]);
-            }
+            await createProject({ variables: { project } });
+
             showAlert({ type: "success", message: "Project created" });
             handleClose();
         } catch (err) {
@@ -157,7 +189,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ projects }) => {
         }
     };
 
-    const filteredProjects = [...localProjects]
+    const filteredProjects = [...projects]
         .filter(project =>
             project.name.toLowerCase().includes(search.toLowerCase())
         )
@@ -215,8 +247,6 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({ projects }) => {
                 <ProjectCard
                     key={project.id}
                     project={project}
-                    onDelete={handleDeleteLocalProject}
-                    onUpdate={handleUpdateLocalProject}
                 />
             )))}
 

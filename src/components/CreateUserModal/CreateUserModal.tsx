@@ -74,7 +74,7 @@ export const CreateUserModal = ({ open, onClose, onCreated }: Props) => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        setForm((prev) => ({ ...prev, [name]: value.trim() }));
     };
 
     const handleDepartmentChange = (e: SelectChangeEvent) => {

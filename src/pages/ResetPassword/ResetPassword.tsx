@@ -1,5 +1,5 @@
 import { gql, useMutation } from '@apollo/client';
-import { Box, Button, FormControl, TextField } from '@mui/material';
+import { Box, Button, FormControl, TextField, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -85,7 +85,7 @@ export const ResetPassword = () => {
                         label="New password"
                         variant="outlined"
                         value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
+                        onChange={(e) => setNewPassword(e.target.value.trim())}
                         required
                         sx={redInputSx}
                     />
@@ -97,6 +97,24 @@ export const ResetPassword = () => {
                 >
                     {loading ? 'Reset...' : 'Reset password'}
                 </Button>
+                <Box textAlign="center" mt={1}>
+                    <Typography
+                        component="a"
+                        href="#"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            navigate('/auth/login');
+                        }}
+                        sx={{
+                            color: 'rgb(118, 118, 118)',
+                            textDecoration: 'none',
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                        }}
+                    >
+                        Go to login
+                    </Typography>
+                </Box>
             </Box>
         </Box>
     );

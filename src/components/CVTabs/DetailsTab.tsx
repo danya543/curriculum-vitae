@@ -44,9 +44,9 @@ export const DetailsTab: React.FC<DetailsTabProps> = ({
                 variables: {
                     cv: {
                         cvId: cvId,
-                        name: form.name,
-                        description: form.description,
-                        education: form.education,
+                        name: form.name.trim(),
+                        description: form.description.trim(),
+                        education: form.education.trim(),
                     },
                 },
             });

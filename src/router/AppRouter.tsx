@@ -86,7 +86,7 @@ export const router = createBrowserRouter([
                 ),
             },
             {
-                path: 'register',
+                path: 'signup',
                 element: (
                     <Suspense fallback={'Loader'}>
                         <Register />

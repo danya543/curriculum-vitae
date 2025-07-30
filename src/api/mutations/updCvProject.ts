@@ -12,7 +12,6 @@ export const UPDATE_CV_PROJECT = gql`
         internal_name
         description
         domain
-        start_date
         end_date
         environment
         roles

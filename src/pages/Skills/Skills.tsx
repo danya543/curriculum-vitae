@@ -62,7 +62,7 @@ export const ProfileSkills = () => {
                         <Typography variant="h6" gutterBottom>
                             {category}
                         </Typography>
-                        <List dense sx={{ display: "flex", flexWrap: "wrap" }}>
+                        <List dense sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                             {skills.map((skill) => (
                                 <SkillCard
                                     key={skill.id}
